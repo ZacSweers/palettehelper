@@ -169,7 +169,6 @@ public class MainActivity : ActionBarActivity() {
                     Timber.d("Activity result - loading image from camera capture.")
                     PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_CAMERA, ANALYTICS_NAV_DETAIL)
                     intent.putExtra(PaletteDetailActivity.KEY_PATH, imagePath)
-                    intent.putExtra(PaletteDetailActivity.KEY_PATH, true)
                     startActivity(intent);
                 }
             }
