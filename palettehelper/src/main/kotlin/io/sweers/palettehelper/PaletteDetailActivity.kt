@@ -93,6 +93,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
                 Timber.d("Uri specified, trying to decode file")
                 val path = intent.getStringExtra(KEY_URI)
                 try {
+                    // TODO This is blocking, and can wait for a download to finish. Need to background this
                     val imageStream = getContentResolver().openInputStream(Uri.parse(path));
                     bitmap = BitmapFactory.decodeStream(imageStream)
                 } catch (e: FileNotFoundException) {
