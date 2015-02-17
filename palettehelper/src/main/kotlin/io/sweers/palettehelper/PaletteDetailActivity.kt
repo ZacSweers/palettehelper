@@ -36,8 +36,6 @@ import kotlin.properties.Delegates
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES10
 import timber.log.Timber
-import android.os.Build
-import android.graphics.PorterDuff
 
 public class PaletteDetailActivity : ActionBarActivity() {
 
@@ -157,7 +155,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
                         if (result.isValid) {
                             generatePalette(bitmap, result.value)
                             dialog.dismiss()
-                            PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_KEY_NUMCOLORS, result.value.toString())
+                            PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_NUMCOLORS, result.value.toString())
                         }
                     }
 
