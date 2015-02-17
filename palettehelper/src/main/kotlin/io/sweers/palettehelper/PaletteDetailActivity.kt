@@ -279,6 +279,8 @@ public class PaletteDetailActivity : ActionBarActivity() {
 
             if (swatch == null) {
                 holder.text?.setText("No swatch for ${swatchNames[position]} :(")
+                holder.text?.setTextColor(Color.parseColor("#ADADAD"))
+                convertViewCopy?.setBackgroundColor(Color.parseColor("#252626"))
             } else {
                 convertViewCopy?.setBackgroundColor(swatch.getRgb())
                 holder.text?.setTextColor(swatch.getTitleTextColor())
