@@ -1,4 +1,4 @@
-[![Palette Helper](art/feature.png)][https://play.google.com/store/apps/details?id=io.sweers.palettehelper]
+![Palette Helper](art/feature.png)
 
 <a href="https://play.google.com/store/apps/details?id=io.sweers.palettehelper">
   <img alt="Get it on Google Play"
