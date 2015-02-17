@@ -36,6 +36,8 @@ import kotlin.properties.Delegates
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES10
 import timber.log.Timber
+import java.io.InputStream
+import java.io.FileNotFoundException
 
 public class PaletteDetailActivity : ActionBarActivity() {
 
@@ -90,12 +92,15 @@ public class PaletteDetailActivity : ActionBarActivity() {
             intent.hasExtra(KEY_PATH) -> {
                 Timber.d("Path specified, trying to decode file")
                 val path = intent.getStringExtra(KEY_PATH)
-                bitmap = BitmapFactory.decodeFile(path)
+                try {
+                    val imageStream = getContentResolver().openInputStream(Uri.parse(path));
+                    bitmap = BitmapFactory.decodeStream(imageStream)
+                } catch (e: FileNotFoundException) {
+                    errorOut()
+                }
             }
             else -> {
-                Timber.e("Given an intent, but we can't do anything with the provided info.")
-                Toast.makeText(this, "Invalid arguments", Toast.LENGTH_SHORT).show()
-                finish()
+                errorOut()
             }
         }
 
@@ -134,6 +139,12 @@ public class PaletteDetailActivity : ActionBarActivity() {
             Timber.d("Prompting for number of colors first")
             promptForNumColors(bitmap)
         }
+    }
+
+    private fun errorOut() {
+        Timber.e("Given an intent, but we can't do anything with the provided info.")
+        Toast.makeText(this, "Invalid arguments", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
     private fun promptForNumColors(bitmap: Bitmap) {

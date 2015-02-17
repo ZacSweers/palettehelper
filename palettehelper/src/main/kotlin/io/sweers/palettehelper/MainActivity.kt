@@ -155,15 +155,7 @@ public class MainActivity : ActionBarActivity() {
                     Timber.d("Activity result - loading image from internal storage.")
                     PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_INTERNAL, ANALYTICS_NAV_DETAIL)
                     val selectedImage = data.getData()
-                    val filePathColumn = array(MediaStore.MediaColumns.DATA)
-
-                    val cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null)
-                    cursor.moveToFirst()
-                    val columnIndex = cursor.getColumnIndex(filePathColumn[0])
-                    val picturePath = cursor.getString(columnIndex)
-                    cursor.close()
-
-                    intent.putExtra(PaletteDetailActivity.KEY_PATH, picturePath)
+                    intent.putExtra(PaletteDetailActivity.KEY_PATH, selectedImage.toString())
                     startActivity(intent)
                 } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
                     Timber.d("Activity result - loading image from camera capture.")
