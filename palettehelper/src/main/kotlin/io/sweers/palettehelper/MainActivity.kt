@@ -1,0 +1,179 @@
+package io.sweers.palettehelper
+
+import android.content.Intent
+import android.net.Uri
+import android.preference.Preference
+import android.preference.PreferenceFragment
+import android.preference.PreferenceScreen
+import android.provider.MediaStore
+import android.support.v7.app.ActionBarActivity
+import android.os.Bundle
+import android.app.Activity
+import java.io.File
+import java.io.IOException
+import java.util.Date
+import android.os.Environment
+import java.text.SimpleDateFormat
+import kotlin.properties.Delegates
+import com.afollestad.materialdialogs.MaterialDialog
+import android.text.Html
+import android.preference.PreferenceCategory
+import timber.log.Timber
+
+public class MainActivity : ActionBarActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        Timber.d("Starting up MainActivity.")
+        PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_ENTER, ANALYTICS_NAV_MAIN)
+        if (savedInstanceState == null) {
+            getFragmentManager().beginTransaction().add(R.id.container, SettingsFragment.newInstance()).commit()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        PaletteHelperApplication.mixPanel.flush()
+    }
+
+    public class SettingsFragment : PreferenceFragment() {
+
+        private var imagePath: String by Delegates.notNull()
+        private val REQUEST_LOAD_IMAGE = 1
+        private val REQUEST_IMAGE_CAPTURE = 2
+
+        class object {
+            public fun newInstance(): SettingsFragment {
+                return SettingsFragment()
+            }
+        }
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            Timber.d("Starting up PreferenceFragment.")
+            setRetainInstance(true)
+            addPreferencesFromResource(R.xml.prefs)
+
+            // Hide the camera option if it's not possible
+            Timber.d("Checking for camera intent.")
+            if (createCameraIntent() == null) {
+                Timber.d("No camera option available, disabling.")
+                (findPreference("pref_key_cat_palette") as PreferenceCategory).removePreference(findPreference("pref_key_camera"))
+            }
+        }
+
+        override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
+            Timber.d("Clicked preference ${preference.getKey()}")
+            when (preference.getKey()) {
+                "pref_key_open" -> {
+                    val i = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivityForResult(i, REQUEST_LOAD_IMAGE)
+                    return true
+                }
+                "pref_key_camera" -> {
+                    PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_CAMERA)
+                    dispatchTakePictureIntent()
+                    return true;
+                }
+                "pref_key_dev" -> {
+                    MaterialDialog.Builder(getActivity())
+                        .title("About")
+                        .content(Html.fromHtml(getString(R.string.about_body)))
+                        .positiveText("Done")
+                        .show()
+                    return true;
+                }
+                "pref_key_licenses" -> {
+                    MaterialDialog.Builder(getActivity())
+                        .title("Licenses")
+                        .content(R.string.licenses)
+                        .positiveText("Done")
+                        .show()
+                    return true
+                }
+                "pref_key_source" -> {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setData(Uri.parse("https://github.com/hzsweers/palettehelper"))
+                    startActivity(intent)
+                    return true;
+                }
+            }
+
+            return super.onPreferenceTreeClick(preferenceScreen, preference)
+        }
+
+        fun createImageFile(): File {
+            Timber.d("Creating imageFile")
+            // Create an image file name
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date());
+            val imageFileName = "JPEG_" + timeStamp + "_";
+            val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            val imageFile = File.createTempFile(
+                    imageFileName,  /* prefix */
+                    ".jpg",         /* suffix */
+                    storageDir      /* directory */
+                    );
+
+            // Save a file: path for use with ACTION_VIEW intents
+            imagePath = imageFile.getAbsolutePath();
+            return imageFile;
+        }
+
+        fun createCameraIntent(): Intent? {
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                return takePictureIntent
+            } else {
+                return null
+            }
+        }
+
+        fun dispatchTakePictureIntent() {
+            val takePictureIntent = createCameraIntent()
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent != null) {
+                // Create the File where the photo should go
+                try {
+                    val imageFile = createImageFile();
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
+                    Timber.d("Dispatching intent to take a picture.")
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                } catch (ex: IOException) {
+                    // Error occurred while creating the File
+                }
+            }
+        }
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            super.onActivityResult(requestCode, resultCode, data)
+            Timber.d("Received activity result.")
+
+            if (resultCode == Activity.RESULT_OK) {
+                val intent = Intent(getActivity(), javaClass<PaletteDetailActivity>())
+                if (requestCode == REQUEST_LOAD_IMAGE && data != null) {
+                    Timber.d("Activity result - loading image from internal storage.")
+                    PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_INTERNAL, ANALYTICS_NAV_DETAIL)
+                    val selectedImage = data.getData()
+                    val filePathColumn = array(MediaStore.MediaColumns.DATA)
+
+                    val cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null)
+                    cursor.moveToFirst()
+                    val columnIndex = cursor.getColumnIndex(filePathColumn[0])
+                    val picturePath = cursor.getString(columnIndex)
+                    cursor.close()
+
+                    intent.putExtra(PaletteDetailActivity.KEY_PATH, picturePath)
+                    startActivity(intent)
+                } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                    Timber.d("Activity result - loading image from camera capture.")
+                    PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_CAMERA, ANALYTICS_NAV_DETAIL)
+                    intent.putExtra(PaletteDetailActivity.KEY_PATH, imagePath)
+                    intent.putExtra(PaletteDetailActivity.KEY_PATH, true)
+                    startActivity(intent);
+                }
+            }
+        }
+
+    }
+}

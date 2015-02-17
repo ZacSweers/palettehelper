@@ -1,0 +1,101 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+def retrieveProp(key) {
+    try {
+        Properties props = new Properties()
+        props.load(new FileInputStream("private.props"))
+        def val = props.getProperty(key)
+        return val
+    } catch (FileNotFoundException ignored) {
+        return ''
+    }
+}
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        applicationId "io.sweers.palettehelper"
+        minSdkVersion 15
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+
+        buildConfigField "String", "BUGSNAG_KEY", "\"${retrieveProp('BUGSNAG_KEY')}\""
+        buildConfigField "String", "ANALYTICS_KEY", "\"${retrieveProp('ANALYTICS_KEY')}\""
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    signingConfigs {
+        release {
+            storeFile new File(retrieveProp('KEYSTORE_LOC'))
+            keyAlias retrieveProp('KEYSTORE_ALIAS')
+            storePassword "placeholder"
+            keyPassword "placeholder"
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+// Get the task graph and assign the signingConfig password if it's a Release buildType
+//noinspection GroovyAssignabilityCheck
+gradle.taskGraph.whenReady { taskGraph ->
+    def tasks = taskGraph.getAllTasks().collect {it.getName()}
+    if (tasks.any{it.contains('Release')}) {
+        def pass = getPassword()
+        android.signingConfigs.release.storePassword = pass
+        android.signingConfigs.release.keyPassword = pass
+    }
+}
+
+def getPassword() {
+    println "Requesting password from keychain"
+    def stdout = new ByteArrayOutputStream()
+    def stderr = new ByteArrayOutputStream()
+    def keychainExec = exec {
+        commandLine 'security', '-q', 'find-generic-password', '-ga', "release-personal"
+        standardOutput = stdout
+        errorOutput = stderr
+        ignoreExitValue true
+    }
+    if (keychainExec.exitValue != 0) {
+        println stdout.toString()
+        println stderr.toString()
+        return null
+    }
+    (stderr.toString().trim() =~ /password: "(.*)"/)[0][1]
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'org.jetbrains.kotlin:kotlin-stdlib:0.10.195'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:palette-v7:21.0.3'
+    compile 'com.android.support:support-annotations:21.0.3'
+    compile 'com.google.android.gms:play-services-base:6.5.87'
+    compile 'com.tonicartos:stickygridheaders:1.0.1'
+    compile 'com.afollestad:material-dialogs:0.6.2.1'
+    compile 'com.bugsnag:bugsnag-android:3.2.4'
+    compile 'com.jakewharton.timber:timber:2.5.0'
+    compile "com.mixpanel.android:mixpanel-android:4.5.3"
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="pref_key_cat_palette"
+        android:title="Palette">
+
+        <Preference
+            android:key="pref_key_open"
+            android:title="Open image"
+            android:summary="Select an image from storage to generate a palette from."
+            android:icon="@drawable/ic_action_folder_open"
+            />
+
+        <Preference
+            android:key="pref_key_camera"
+            android:title="Take picture"
+            android:summary="Generate a palette from a photo."
+            android:icon="@drawable/ic_action_camera"
+            />
+
+        <CheckBoxPreference
+            android:key="pref_key_default"
+            android:title="Use default number of colors"
+            android:summary="By default, Palette extracts 16 colors. Enabling this will skip the prompt at extraction."
+            android:defaultValue="true"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="About">
+
+        <Preference
+            android:key="pref_key_dev"
+            android:title="Developer"
+            android:summary="Henri (Zac) Sweers"
+            />
+
+        <Preference
+            android:key="pref_key_licenses"
+            android:title="Licenses"
+            />
+
+        <Preference
+            android:key="pref_key_source"
+            android:title="Source Code"
+            android:summary="This project is open source, and written in Kotlin! Feel free to fork, contribute, etc."
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
