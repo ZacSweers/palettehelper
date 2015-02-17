@@ -14,7 +14,7 @@ The flow is pretty simple. You can either choose to open an image from storage, 
 
 For fun, I opted to write this all in Kotlin. Assuming you install the Kotlin plugin, this should be easy to import and run in Android Studio.
 
-Special thanks to @emilsjolander for the icon/graphic designs!
+Special thanks to [@emilsjolander](https://github.com/emilsjolander) for the icon/graphic designs!
 
 License
 -------
