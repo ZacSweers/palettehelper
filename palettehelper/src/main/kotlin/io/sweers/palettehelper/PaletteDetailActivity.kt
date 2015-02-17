@@ -42,7 +42,7 @@ import java.io.FileNotFoundException
 public class PaletteDetailActivity : ActionBarActivity() {
 
     class object {
-        val KEY_PATH = "path"
+        val KEY_URI = "uri_path"
         val KEY_CAMERA = "camera"
     }
 
@@ -89,15 +89,20 @@ public class PaletteDetailActivity : ActionBarActivity() {
                     Timber.e("No image URI provided?")
                 }
             }
-            intent.hasExtra(KEY_PATH) -> {
-                Timber.d("Path specified, trying to decode file")
-                val path = intent.getStringExtra(KEY_PATH)
+            intent.hasExtra(KEY_URI) -> {
+                Timber.d("Uri specified, trying to decode file")
+                val path = intent.getStringExtra(KEY_URI)
                 try {
                     val imageStream = getContentResolver().openInputStream(Uri.parse(path));
                     bitmap = BitmapFactory.decodeStream(imageStream)
                 } catch (e: FileNotFoundException) {
                     errorOut()
                 }
+            }
+            intent.hasExtra(KEY_CAMERA) -> {
+                Timber.d("Path specified, trying to decode file")
+                val path = intent.getStringExtra(KEY_CAMERA)
+                bitmap = BitmapFactory.decodeFile(path)
             }
             else -> {
                 errorOut()
