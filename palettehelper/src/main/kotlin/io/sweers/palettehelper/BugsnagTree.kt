@@ -14,6 +14,20 @@ import android.util.Log
  */
 final class BugsnagTree: Timber.HollowTree() {
 
+    class object {
+        private val BUFFER_SIZE = 200
+
+        private fun priorityToString(priority: Int): String {
+            when (priority) {
+                Log.ERROR -> return "E"
+                Log.WARN -> return "W"
+                Log.INFO -> return "I"
+                Log.DEBUG -> return "D"
+                else -> return java.lang.String.valueOf(priority)
+            }
+        }
+    }
+
     // Adding one to the initial size accounts for the add before remove.
     private val buffer: Deque<String> = ArrayDeque(BUFFER_SIZE + 1)
 
@@ -62,20 +76,6 @@ final class BugsnagTree: Timber.HollowTree() {
             var i = 1
             for (message: String in buffer) {
                 error.addToTab("Log", java.lang.String.format("%03d", i++), message)
-            }
-        }
-    }
-
-    class object {
-        private val BUFFER_SIZE = 200
-
-        private fun priorityToString(priority: Int): String {
-            when (priority) {
-                Log.ERROR -> return "E"
-                Log.WARN -> return "W"
-                Log.INFO -> return "I"
-                Log.DEBUG -> return "D"
-                else -> return java.lang.String.valueOf(priority)
             }
         }
     }
