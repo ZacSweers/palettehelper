@@ -87,9 +87,9 @@ public class PaletteDetailActivity : ActionBarActivity() {
                     Timber.e("No image URI provided?")
                 }
             }
-            intent.hasExtra("path") -> {
+            intent.hasExtra(KEY_PATH) -> {
                 Timber.d("Path specified, trying to decode file")
-                val path = intent.getStringExtra("path")
+                val path = intent.getStringExtra(KEY_PATH)
                 bitmap = BitmapFactory.decodeFile(path)
             }
             else -> {
