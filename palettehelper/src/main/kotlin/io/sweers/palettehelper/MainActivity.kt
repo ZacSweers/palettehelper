@@ -55,6 +55,13 @@ public class MainActivity : ActionBarActivity() {
             setRetainInstance(true)
             addPreferencesFromResource(R.xml.prefs)
 
+            // Hide pick intent option if it's not possible. Should be rare though
+            Timber.d("Checking for pick intent.")
+            if (createPickIntent() == null) {
+                Timber.d("No pick option available, disabling.")
+                (findPreference("pref_key_cat_palette") as PreferenceCategory).removePreference(findPreference("pref_key_open"))
+            }
+
             // Hide the camera option if it's not possible
             Timber.d("Checking for camera intent.")
             if (createCameraIntent() == null) {
@@ -67,7 +74,7 @@ public class MainActivity : ActionBarActivity() {
             Timber.d("Clicked preference ${preference.getKey()}")
             when (preference.getKey()) {
                 "pref_key_open" -> {
-                    val i = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    val i = createPickIntent()
                     startActivityForResult(i, REQUEST_LOAD_IMAGE)
                     return true
                 }
@@ -118,6 +125,15 @@ public class MainActivity : ActionBarActivity() {
             // Save a file: path for use with ACTION_VIEW intents
             imagePath = imageFile.getAbsolutePath();
             return imageFile;
+        }
+
+        fun createPickIntent(): Intent? {
+            val picImageIntent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            if (picImageIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                return picImageIntent
+            } else {
+                return null
+            }
         }
 
         fun createCameraIntent(): Intent? {
