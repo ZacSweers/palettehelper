@@ -19,6 +19,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import android.text.Html
 import android.preference.PreferenceCategory
 import timber.log.Timber
+import android.webkit.WebView
 
 public class MainActivity : ActionBarActivity() {
 
@@ -92,11 +93,13 @@ public class MainActivity : ActionBarActivity() {
                     return true;
                 }
                 "pref_key_licenses" -> {
+                    val webView = WebView(getActivity());
+                    webView.loadUrl("file:///android_asset/licenses.html");
                     MaterialDialog.Builder(getActivity())
-                        .title("Licenses")
-                        .content(R.string.licenses)
-                        .positiveText("Done")
-                        .show()
+                            .title("Licenses")
+                            .customView(webView, false)
+                            .positiveText("Done")
+                            .show();
                     return true
                 }
                 "pref_key_source" -> {
