@@ -36,8 +36,8 @@ import kotlin.properties.Delegates
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES10
 import timber.log.Timber
-import java.io.InputStream
 import java.io.FileNotFoundException
+import android.view.Gravity
 
 public class PaletteDetailActivity : ActionBarActivity() {
 
@@ -306,7 +306,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
             val textView = getLayoutInflater().inflate(R.layout.header_row, parent, false) as TextView
             textView.setBackgroundColor(Color.WHITE)
             textView.setTextColor(Color.BLACK)
-            textView.setGravity(View.TEXT_ALIGNMENT_TEXT_START)
+            textView.setGravity(Gravity.START)
             val text: String
             if (getHeaderId(position).toInt() == 0) {
                 text = "Primary Swatches"
