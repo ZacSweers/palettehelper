@@ -6,7 +6,7 @@ import android.content.Intent
 import java.net.URLDecoder
 import java.io.UnsupportedEncodingException
 import java.util.LinkedHashMap
-import android.util.Log
+import timber.log.Timber
 
 /**
  * Created by hsweers on 2/19/15.
@@ -31,7 +31,7 @@ public class ReferrerHandler: BroadcastReceiver() {
         val params = splitQuery(referralInfo)
 
         if (params != null) {
-            Log.d("ReferrerHandler", "Params are: ${params}")
+            Timber.d("Params are: ${params}")
             PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_CAMPAIGN))
             PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_SOURCE))
             PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_MEDIUM))
