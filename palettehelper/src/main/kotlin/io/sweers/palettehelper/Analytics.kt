@@ -12,6 +12,7 @@ val ANALYTICS_NAV_SHARE = "External Share"
 val ANALYTICS_NAV_INTERNAL = "Internal storage"
 val ANALYTICS_NAV_CAMERA = "Camera"
 val ANALYTICS_KEY_NUMCOLORS = "Number of colors"
+val ANALYTICS_KEY_PLAY_REFERRER = "Google Play install referrer"
 
 public fun MixpanelAPI.trackNav(src: String, dest: String) {
     val props: JSONObject = JSONObject();

@@ -42,6 +42,14 @@
 
         </activity>
 
+        <!-- Play Store install referrer information -->
+        <receiver android:name="io.sweers.palettehelper.ReferrerHandler"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
     </application>
