@@ -4,6 +4,7 @@
   <img alt="Get it on Google Play"
        src="https://developer.android.com/images/brand/en_generic_rgb_wo_60.png" />
 </a>
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Palette%20Helper-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1613)
 
 Palette Helper is a simple utility app made to generate color palettes of images using Google's fantastic [Palette](https://developer.android.com/reference/android/support/v7/graphics/Palette.html) library. It's mostly a for-fun pet project, and intended as such for anyone that wants to see what kind of results the library churns out for images. I hope it might also be useful to any designers that want to design a color palette around a given scene or image.
 
