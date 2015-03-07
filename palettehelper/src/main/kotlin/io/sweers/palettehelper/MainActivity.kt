@@ -20,6 +20,10 @@ import android.text.Html
 import android.preference.PreferenceCategory
 import timber.log.Timber
 import android.webkit.WebView
+import android.view.View
+import android.widget.EditText
+import android.util.Patterns
+import android.text.InputType
 
 public class MainActivity : ActionBarActivity() {
 
@@ -82,6 +86,45 @@ public class MainActivity : ActionBarActivity() {
                 "pref_key_camera" -> {
                     PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_CAMERA)
                     dispatchTakePictureIntent()
+                    return true;
+                }
+                "pref_key_url" -> {
+                    val inputView = View.inflate(getActivity(), R.layout.basic_edittext_dialog, null);
+                    val input = inputView.findViewById(R.id.et) as EditText
+                    MaterialDialog.Builder(getActivity())
+                            .title("Open Image from URL")
+                            .customView(inputView, false)
+                            .positiveText("Done")
+                            .negativeText("Cancel")
+                            .autoDismiss(false)
+                            .callback(object : MaterialDialog.ButtonCallback() {
+                                override fun onPositive(dialog: MaterialDialog) {
+                                    val result = validateInput()
+                                    if (result.isValid) {
+                                        dialog.dismiss()
+                                        val intent = Intent(Intent.ACTION_SEND)
+                                        intent.setClass(getActivity(), javaClass<PaletteDetailActivity>())
+                                        intent.putExtra(Intent.EXTRA_TEXT, result.value)
+                                        startActivity(intent)
+                                    }
+                                }
+
+                                override fun onNegative(dialog: MaterialDialog?) {
+                                    dialog?.dismiss()
+                                }
+
+                                data inner class Result(val isValid: Boolean, val value: String)
+                                fun validateInput(): Result {
+                                    val inputText: String = input.getText().toString().trim().replace(" ", "")
+                                    if (Patterns.WEB_URL.matcher(inputText).matches()) {
+                                        return Result(true, inputText)
+                                    } else {
+                                        input.setError("Invalid URL")
+                                        return Result(false, "")
+                                    }
+                                }
+                            })
+                            .show()
                     return true;
                 }
                 "pref_key_dev" -> {

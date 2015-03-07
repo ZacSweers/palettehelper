@@ -84,6 +84,9 @@ public class PaletteDetailActivity : ActionBarActivity() {
                 Timber.d("Path specified, trying to decode file")
                 imageUri = intent.getStringExtra(KEY_CAMERA)
             }
+            Intent.ACTION_SEND == action -> {
+                imageUri = intent.getStringExtra(Intent.EXTRA_TEXT);
+            }
             else -> {
                 errorOut()
             }
@@ -127,7 +130,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
 
     private fun errorOut() {
         Timber.e("Given an intent, but we can't do anything with the provided info.")
-        Toast.makeText(this, "Invalid arguments", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show()
         finish()
     }
 

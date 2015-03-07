@@ -19,6 +19,13 @@
             android:icon="@drawable/ic_action_camera"
             />
 
+        <Preference
+            android:key="pref_key_url"
+            android:title="Open Image URL"
+            android:summary="Generate a palette using an image from the web."
+            android:icon="@drawable/ic_action_link"
+            />
+
         <CheckBoxPreference
             android:key="pref_key_default"
             android:title="Use default number of colors"
