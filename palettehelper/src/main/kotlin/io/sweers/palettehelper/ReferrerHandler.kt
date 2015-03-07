@@ -28,6 +28,11 @@ public class ReferrerHandler: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val referralInfo = intent.getStringExtra(VENDING_REFERRED_INFO)
+
+        if (referralInfo == null) {
+            Timber.e(Exception(), "Referral info is null")
+        }
+
         val params = splitQuery(referralInfo)
 
         if (params != null) {
