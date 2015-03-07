@@ -2,11 +2,9 @@ package io.sweers.palettehelper
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.support.v7.app.ActionBarActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.Toolbar
@@ -22,7 +20,6 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersGridView
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
 
-import java.io.IOException
 import java.util.ArrayList
 import java.util.Arrays
 
@@ -31,13 +28,12 @@ import com.afollestad.materialdialogs.GravityEnum
 import android.widget.EditText
 import android.preference.PreferenceManager
 import com.afollestad.materialdialogs.Theme
-import android.text.InputType
-import kotlin.properties.Delegates
-import javax.microedition.khronos.opengles.GL10
-import android.opengl.GLES10
 import timber.log.Timber
-import java.io.FileNotFoundException
 import android.view.Gravity
+import com.nostra13.universalimageloader.core.ImageLoader
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import com.nostra13.universalimageloader.core.assist.FailReason
 
 public class PaletteDetailActivity : ActionBarActivity() {
 
@@ -50,7 +46,6 @@ public class PaletteDetailActivity : ActionBarActivity() {
     val toolbar: Toolbar by bindView(R.id.toolbar)
     val gridView: StickyGridHeadersGridView by bindView(R.id.gv)
     val imageView: ImageView by bindView(R.id.iv)
-    var bitmap: Bitmap by Delegates.notNull()
 
     // Extension functions to Swatch to get hex values
     public fun Swatch.rgbHex(): String = rgbToHex(getRgb())
@@ -72,78 +67,52 @@ public class PaletteDetailActivity : ActionBarActivity() {
         val intent = getIntent()
         val action = intent.getAction()
         val type: String? = intent.getType()
+        var imageUri: String? = null
         when {
             Intent.ACTION_SEND == action && type != null && type.startsWith("image/") -> {
                 Timber.d("Received via app share, trying to resolve uri")
                 PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_SHARE, ANALYTICS_NAV_DETAIL)
-                val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-                if (imageUri != null) {
-                    try {
-                        Timber.d("Trying to retrieve bitmap")
-                        bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri)
-                    } catch (e: IOException) {
-                        Timber.e("Bitmap could not be retrieved")
-                        Toast.makeText(this, "Could not resolve image", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Timber.e("No image URI provided?")
-                }
+                imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM).toString()
             }
             intent.hasExtra(KEY_URI) -> {
                 Timber.d("Uri specified, trying to decode file")
-                val path = intent.getStringExtra(KEY_URI)
-                try {
-                    // TODO This is blocking, and can wait for a download to finish. Need to background this
-                    val imageStream = getContentResolver().openInputStream(Uri.parse(path));
-                    bitmap = BitmapFactory.decodeStream(imageStream)
-                } catch (e: FileNotFoundException) {
-                    errorOut()
-                }
+                imageUri = intent.getStringExtra(KEY_URI)
             }
             intent.hasExtra(KEY_CAMERA) -> {
                 Timber.d("Path specified, trying to decode file")
-                val path = intent.getStringExtra(KEY_CAMERA)
-                bitmap = BitmapFactory.decodeFile(path)
+                imageUri = "file://${intent.getStringExtra(KEY_CAMERA)}"
             }
             else -> {
                 errorOut()
             }
         }
 
-        Timber.d("Setting up imageview with bitmap")
-        val maxTextureSize = IntArray(1)
-        GLES10.glGetIntegerv(GL10.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0);
-        val maxBitmapDimension = Math.max(maxTextureSize[0], 2048);
-        var width = bitmap.getWidth()
-        var height = bitmap.getHeight()
-        if (width > maxBitmapDimension || height > maxBitmapDimension) {
-            Timber.d("Gotta scale the bitmap")
-            if (width > height) {
-                // landscape
-                val ratio = width.toFloat() / maxBitmapDimension.toFloat()
-                width = maxBitmapDimension;
-                height = (height / ratio).toInt()
-            } else if (height > width) {
-                // portrait
-                val ratio = height.toFloat() / maxBitmapDimension.toFloat()
-                height = maxBitmapDimension;
-                width = (width / ratio).toInt()
-            } else {
-                // square
-                height = maxBitmapDimension;
-                width = maxBitmapDimension;
-            }
+        if (imageUri != null) {
+            val dialog = MaterialDialog.Builder(this)
+                    .content("Loading Bitmap")
+                    .progress(true, 0)
+                    .show()
 
-            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, width, height, true))
-        } else {
-            imageView.setImageBitmap(bitmap)
-        }
+            ImageLoader.getInstance().init(ImageLoaderConfiguration.Builder(this).build());
+            ImageLoader.getInstance().displayImage(imageUri, imageView, object : SimpleImageLoadingListener() {
+                override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
+                    dialog.dismiss()
+                    if (PreferenceManager.getDefaultSharedPreferences(this@PaletteDetailActivity).getBoolean("pref_key_default", true)) {
+                        generatePalette(loadedImage, DEFAULT_NUM_COLORS)
+                    } else {
+                        Timber.d("Prompting for number of colors first")
+                        promptForNumColors(loadedImage)
+                    }
+                }
 
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_key_default", true)) {
-            generatePalette(bitmap, DEFAULT_NUM_COLORS)
+                override fun onLoadingFailed(imageUri: String?, view: View?, failReason: FailReason?) {
+                    Timber.e("Invalid imageUri: %s", failReason?.getType()?.name())
+                    errorOut()
+                }
+            });
         } else {
-            Timber.d("Prompting for number of colors first")
-            promptForNumColors(bitmap)
+            Timber.e("Invalid imageUri")
+            errorOut()
         }
     }
 
