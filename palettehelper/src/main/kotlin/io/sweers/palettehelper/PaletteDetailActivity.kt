@@ -34,6 +34,8 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import com.nostra13.universalimageloader.core.assist.FailReason
+import android.os.Handler
+import android.os.Looper
 
 public class PaletteDetailActivity : ActionBarActivity() {
 
@@ -91,12 +93,19 @@ public class PaletteDetailActivity : ActionBarActivity() {
             val dialog = MaterialDialog.Builder(this)
                     .content("Loading Bitmap")
                     .progress(true, 0)
-                    .show()
+                    .build()
+
+            val runnable: Runnable = Runnable { dialog.show() }
+            val handler = Handler(Looper.getMainLooper());
+            handler.postDelayed(runnable, 500)  // Wait half a second before showing the dialog to avoid flashing effect if it loads fast
 
             ImageLoader.getInstance().init(ImageLoaderConfiguration.Builder(this).build());
             ImageLoader.getInstance().displayImage(imageUri, imageView, object : SimpleImageLoadingListener() {
                 override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
-                    dialog.dismiss()
+                    handler.removeCallbacks(runnable)
+                    if (dialog.isShowing()) {
+                        dialog.dismiss()
+                    }
                     if (PreferenceManager.getDefaultSharedPreferences(this@PaletteDetailActivity).getBoolean("pref_key_default", true)) {
                         generatePalette(loadedImage, DEFAULT_NUM_COLORS)
                     } else {
