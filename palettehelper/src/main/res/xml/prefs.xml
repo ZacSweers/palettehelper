@@ -21,7 +21,7 @@
 
         <Preference
             android:key="pref_key_url"
-            android:title="Open Image URL"
+            android:title="Open image URL"
             android:summary="Generate a palette using an image from the web."
             android:icon="@drawable/ic_action_link"
             />
