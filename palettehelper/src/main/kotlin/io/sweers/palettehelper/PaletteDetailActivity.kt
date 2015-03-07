@@ -154,14 +154,11 @@ public class PaletteDetailActivity : ActionBarActivity() {
     }
 
     private fun promptForNumColors(bitmap: Bitmap) {
-        // TODO Find a way to stick this info into the dialog that doesn't suck
-//        val info = "You may have seen above that you can specify the palette size. The higher the number, the longer it takes to generate a palette. The lower the number, the less colors we have to choose from. The best number to use depends on the image type:\n* Contact images/avatars: optimal values are 24-32\n* Landscapes: optimal values are 8-16\n\nThe default value is 16 which is good compromise and works well in most situations."
-        val input = EditText(this)
-        input.setInputType(InputType.TYPE_CLASS_NUMBER)
-        input.setTextColor(Color.BLACK)
+        val inputView = View.inflate(this, R.layout.colors_prompt, null);
+        val input = inputView.findViewById(R.id.et) as EditText
         MaterialDialog.Builder(this)
                 .title("Number of colors?")
-                .customView(input, false)
+                .customView(inputView, true)
                 .positiveText("Generate")
                 .negativeText("Cancel")
                 .neutralText("Default")
