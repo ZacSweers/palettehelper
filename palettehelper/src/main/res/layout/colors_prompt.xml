@@ -14,14 +14,14 @@
         android:textColor="#FF58595A"
         android:textSize="16sp"
         android:paddingBottom="12dp"
-        android:text="The higher the number, the longer it takes.\n\n- Contact images/avatars: optimal values are 24-32\n- Landscapes: optimal values are 8-16\n\nDefault is 16, which is good compromise and works well in most situations."
+        android:text="@string/colors_prompt_info"
         />
 
     <EditText
         android:id="@+id/et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter a number"
+        android:hint="@string/colors_prompt_hint"
         android:inputType="number"
         android:singleLine="true"
         android:textColor="@android:color/black"

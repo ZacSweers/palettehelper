@@ -3,61 +3,61 @@
 
     <PreferenceCategory
         android:key="pref_key_cat_palette"
-        android:title="Palette">
+        android:title="@string/main_palette_category">
 
         <Preference
             android:key="pref_key_open"
-            android:title="Open image"
-            android:summary="Select an image from storage to generate a palette from."
+            android:title="@string/main_open_image"
+            android:summary="@string/main_open_image_summary"
             android:icon="@drawable/ic_action_folder_open"
             android:persistent="false"
             />
 
         <Preference
             android:key="pref_key_camera"
-            android:title="Take picture"
-            android:summary="Generate a palette from a photo."
+            android:title="@string/main_take_picture"
+            android:summary="@string/main_take_picture_summary"
             android:icon="@drawable/ic_action_camera"
             android:persistent="false"
             />
 
         <Preference
             android:key="pref_key_url"
-            android:title="Open image URL"
-            android:summary="Generate a palette using an image from the web."
+            android:title="@string/main_open_url"
+            android:summary="@string/main_open_url_summary"
             android:icon="@drawable/ic_action_link"
             android:persistent="false"
             />
 
         <CheckBoxPreference
             android:key="pref_key_default"
-            android:title="Use default number of colors"
-            android:summary="By default, Palette extracts 16 colors. Enabling this will skip the prompt at extraction."
+            android:title="@string/main_pref_default_colors"
+            android:summary="@string/main_pref_default_colors_summary"
             android:defaultValue="true"
             />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="About">
+        android:title="@string/main_about">
 
         <Preference
             android:key="pref_key_dev"
-            android:title="Developer"
-            android:summary="Henri (Zac) Sweers"
+            android:title="@string/main_developer"
+            android:summary="@string/main_developer_summary"
             android:persistent="false"
             />
 
         <Preference
             android:key="pref_key_licenses"
-            android:title="Licenses"
+            android:title="@string/main_licenses"
             android:persistent="false"
             />
 
         <Preference
             android:key="pref_key_source"
-            android:title="Source Code"
-            android:summary="This project is open source, and written in Kotlin! Feel free to fork, contribute, etc."
+            android:title="@string/main_source"
+            android:summary="@string/main_source_summary"
             android:persistent="false"
             />
 

@@ -93,7 +93,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
 
         if (imageUri != null) {
             val dialog = MaterialDialog.Builder(this)
-                    .content("Loading Bitmap")
+                    .content(R.string.detail_loading_image)
                     .progress(true, 0)
                     .build()
 
@@ -129,7 +129,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
 
     private fun errorOut() {
         Timber.e("Given an intent, but we can't do anything with the provided info.")
-        Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.detail_invalid_input), Toast.LENGTH_SHORT).show()
         finish()
     }
 
@@ -137,11 +137,11 @@ public class PaletteDetailActivity : ActionBarActivity() {
         val inputView = View.inflate(this, R.layout.colors_prompt, null);
         val input = inputView.findViewById(R.id.et) as EditText
         MaterialDialog.Builder(this)
-                .title("Number of colors?")
+                .title(R.string.dialog_num_colors)
                 .customView(inputView, true)
-                .positiveText("Generate")
-                .negativeText("Cancel")
-                .neutralText("Default")
+                .positiveText(R.string.dialog_generate)
+                .negativeText(R.string.dialog_cancel)
+                .neutralText(R.string.dialog_default)
                 .autoDismiss(false)
                 .callback(object : MaterialDialog.ButtonCallback() {
                     override fun onPositive(dialog: MaterialDialog) {
@@ -169,12 +169,12 @@ public class PaletteDetailActivity : ActionBarActivity() {
                         try {
                             val number = java.lang.Integer.parseInt(inputText)
                             if (number < 1) {
-                                input.setError("Must be greater than 1")
+                                input.setError(getString(R.string.detail_must_be_greater_than_one))
                                 return Result(false, -1)
                             }
                             return Result(true, number)
                         } catch (e: Exception) {
-                            input.setError("Invalid input")
+                            input.setError(getString(R.string.detail_invalid_input))
                             return Result(false, -1)
                         }
                     }
@@ -215,14 +215,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
     private inner class ResultsAdapter(private val swatches: List<Swatch>) : BaseAdapter(),
             AdapterView.OnItemClickListener, StickyGridHeadersSimpleAdapter {
 
-        private val swatchNames = array(
-                "Vibrant",
-                "Muted",
-                "DarkVibrant",
-                "DarkMuted",
-                "LightVibrant",
-                "LightMuted"
-        )
+        private val swatchNames = getResources().getStringArray(R.array.swatches)
 
         override fun getCount(): Int {
             return swatches.size()
@@ -255,7 +248,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
             }
 
             if (swatch == null) {
-                holder.text?.setText("No swatch for ${swatchNames[position]} :(")
+                holder.text?.setText(getString(R.string.detail_no_swatch, swatchNames[position]))
                 holder.text?.setTextColor(Color.parseColor("#ADADAD"))
                 convertViewCopy?.setBackgroundColor(Color.parseColor("#252626"))
             } else {
@@ -286,9 +279,9 @@ public class PaletteDetailActivity : ActionBarActivity() {
             textView.setGravity(Gravity.START)
             val text: String
             if (getHeaderId(position).toInt() == 0) {
-                text = "Primary Swatches"
+                text = getString(R.string.detail_primary_swatches)
             } else {
-                text = "All Swatches"
+                text = getString(R.string.detail_all_swatches)
             }
             textView.setText(text)
             return textView
@@ -297,7 +290,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
         override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
             Timber.d("Swatch item clicked")
             val swatch = getItem(position)
-            val title = if (position < 6)  swatchNames[position] else "Lorem ipsum"
+            val title = if (position < 6)  swatchNames[position] else getString(R.string.detail_lorem)
             if (swatch != null) {
                 Timber.d("Swatch wasn't null, building dialog")
                 MaterialDialog.Builder(this@PaletteDetailActivity)
@@ -307,10 +300,10 @@ public class PaletteDetailActivity : ActionBarActivity() {
                         .title(title)
                         .backgroundColor(swatch.getRgb())
                         .contentColor(swatch.getBodyTextColor())
-                        .content("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
-                        .positiveText("Done")
+                        .content(R.string.detail_lorem_full)
+                        .positiveText(R.string.dialog_done)
                         .positiveColor(swatch.getBodyTextColor())
-                        .neutralText("Values")
+                        .neutralText(R.string.dialog_values)
                         .neutralColor(swatch.getBodyTextColor())
                         .callback(object : MaterialDialog.ButtonCallback() {
                             override fun onPositive(dialog: MaterialDialog) = dialog.dismiss()
@@ -325,15 +318,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
 
         private fun showValues(swatch: Swatch) {
             Timber.d("Showing values")
-            val items = array(
-                    "RGB: ${swatch.rgbHex()}",
-                    "Title: ${swatch.titleHex()}",
-                    "Body: ${swatch.bodyHex()}",
-                    "Hue: ${swatch.getHsl()[0]}",
-                    "Saturation: ${swatch.getHsl()[1]}",
-                    "Luminosity: ${swatch.getHsl()[2]}",
-                    "Population: ${swatch.getPopulation()}"
-            )
+            val items = getString(R.string.dialog_values_list, swatch.rgbHex(), swatch.titleHex(), swatch.bodyHex(), swatch.getHsl()[0], swatch.getHsl()[1], swatch.getHsl()[2], swatch.getPopulation()).split("\n")
             MaterialDialog.Builder(this@PaletteDetailActivity)
                     .theme(if (swatch.getHsl()[2] > 0.5f) Theme.LIGHT else Theme.DARK)
                     .backgroundColor(swatch.getRgb())
@@ -354,7 +339,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
                         }
                     })
                     .forceStacking(true)
-                    .positiveText("Copy all to clipboard")
+                    .positiveText(R.string.dialog_copy_all)
                     .positiveColor(swatch.getBodyTextColor())
                     .callback(object : MaterialDialog.ButtonCallback() {
                         override fun onPositive(dialog: MaterialDialog) {

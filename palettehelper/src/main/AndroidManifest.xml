@@ -28,7 +28,7 @@
         </activity>
         <activity
             android:name="io.sweers.palettehelper.PaletteDetailActivity"
-            android:label="Generate Palette"
+            android:label="@string/detail_generate_palette"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:parentActivityName="io.sweers.palettehelper.MainActivity"
             android:screenOrientation="portrait"

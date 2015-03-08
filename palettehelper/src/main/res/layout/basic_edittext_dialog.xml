@@ -10,7 +10,7 @@
         android:id="@+id/et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter URL"
+        android:hint="@string/url_input_hint"
         android:inputType="textUri|textMultiLine"
         android:singleLine="true"
         android:scrollHorizontally="false"

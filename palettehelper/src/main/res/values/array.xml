@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="swatches">
+        <item>@string/swatch_vibrant</item>
+        <item>@string/swatch_muted</item>
+        <item>@string/swatch_dark_vibrant</item>
+        <item>@string/swatch_dark_muted</item>
+        <item>@string/swatch_light_vibrant</item>
+        <item>@string/swatch_light_muted</item>
+    </string-array>
+</resources>

@@ -1,6 +1,4 @@
-<resources>
-    <string name="app_name">Palette Helper</string>
-
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="about_body"><![CDATA[
         Palette Helper is a simple utility app made to generate color palettes of images using Google\'s fantastic Palette library.<br/><br/>
         Written by Henri (Zac) Sweers.<br/><br/>
@@ -10,5 +8,45 @@
         <a href=\'https://github.com/hzsweers\'>GitHub</a>&nbsp;&nbsp;
         <a href=\'https://www.linkedin.com/profile/view?id=126301011\'>LinkedIn</a>
     ]]></string>
+    <string name="url_input_hint">Enter URL</string>
+    <string name="cd_detail_image">Source Image</string>
+    <string name="colors_prompt_info" tools:ignore="TypographyDashes">The higher the number, the longer it takes.\n\n– Contact images/avatars: optimal values are 24-32\n– Landscapes: optimal values are 8-16\n\nDefault is 16, which is good compromise and works well in most situations.</string>
+    <string name="colors_prompt_hint">Enter a number</string>
+    <string name="main_palette_category">Palette</string>
+    <string name="main_open_image">Open image</string>
+    <string name="main_take_picture">Take picture</string>
+    <string name="main_open_image_summary">Select an image from storage to generate a palette from.</string>
+    <string name="main_take_picture_summary">Generate a palette from a photo.</string>
+    <string name="main_open_url">Open image URL</string>
+    <string name="main_open_url_summary">Generate a palette using an image from the web.</string>
+    <string name="main_open_url_error">Invalid URL</string>
+    <string name="main_pref_default_colors">Use default number of colors</string>
+    <string name="main_pref_default_colors_summary">By default, Palette extracts 16 colors. Enabling this will skip the prompt at extraction.</string>
+    <string name="main_about">About</string>
+    <string name="main_developer">Developer</string>
+    <string name="main_licenses">Licenses</string>
+    <string name="main_source">Source Code</string>
+    <string name="main_source_summary">This project is open source, and written in Kotlin! Feel free to fork, contribute, etc.</string>
+    <string name="detail_generate_palette">Generate Palette</string>
+    <string name="detail_invalid_input">Invalid input</string>
+    <string name="detail_must_be_greater_than_one">Must be greater than 1</string>
+    <string name="detail_loading_image">Loading image</string>
+    <string name="detail_no_swatch">No swatch for %s :(</string>
+    <string name="detail_primary_swatches">Primary Swatches</string>
+    <string name="detail_all_swatches">All Swatches</string>
+    <string name="dialog_done">Done</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_default">Default</string>
+    <string name="dialog_generate">Generate</string>
+    <string name="dialog_num_colors">Number of colors?</string>
+    <string name="dialog_values">Values</string>
+    <string name="dialog_copy_all">Copy all to clipboard</string>
+    <string name="dialog_values_list" formatted="false">RGB: %s\nTitle: %s\nBody: %s\nHue: %s\nSaturation: %s\nLuminosity: %s\nPopulation: %s</string>
+    <string name="swatch_vibrant">Vibrant</string>
+    <string name="swatch_muted">Muted</string>
+    <string name="swatch_dark_vibrant">DarkVibrant</string>
+    <string name="swatch_dark_muted">DarkMuted</string>
+    <string name="swatch_light_vibrant">LightVibrant</string>
+    <string name="swatch_light_muted">LightMuted</string>
 
 </resources>

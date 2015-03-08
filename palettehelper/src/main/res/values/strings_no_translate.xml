@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Palette Helper</string>
+    <string name="main_developer_summary">Henri (Zac) Sweers</string>
+    <string name="detail_lorem">Lorem Ipsum</string>
+    <string name="detail_lorem_full">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+</resources>

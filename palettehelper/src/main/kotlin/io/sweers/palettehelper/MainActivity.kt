@@ -92,10 +92,10 @@ public class MainActivity : ActionBarActivity() {
                     val inputView = View.inflate(getActivity(), R.layout.basic_edittext_dialog, null);
                     val input = inputView.findViewById(R.id.et) as EditText
                     MaterialDialog.Builder(getActivity())
-                            .title("Open Image from URL")
+                            .title(R.string.main_open_url)
                             .customView(inputView, false)
-                            .positiveText("Done")
-                            .negativeText("Cancel")
+                            .positiveText(R.string.dialog_done)
+                            .negativeText(R.string.dialog_cancel)
                             .autoDismiss(false)
                             .callback(object : MaterialDialog.ButtonCallback() {
                                 override fun onPositive(dialog: MaterialDialog) {
@@ -119,7 +119,7 @@ public class MainActivity : ActionBarActivity() {
                                     if (Patterns.WEB_URL.matcher(inputText).matches()) {
                                         return Result(true, inputText)
                                     } else {
-                                        input.setError("Invalid URL")
+                                        input.setError(getString(R.string.main_open_url_error))
                                         return Result(false, "")
                                     }
                                 }
@@ -129,9 +129,9 @@ public class MainActivity : ActionBarActivity() {
                 }
                 "pref_key_dev" -> {
                     MaterialDialog.Builder(getActivity())
-                        .title("About")
+                        .title(R.string.main_about)
                         .content(Html.fromHtml(getString(R.string.about_body)))
-                        .positiveText("Done")
+                        .positiveText(R.string.dialog_done)
                         .show()
                     return true;
                 }
@@ -139,9 +139,9 @@ public class MainActivity : ActionBarActivity() {
                     val webView = WebView(getActivity());
                     webView.loadUrl("file:///android_asset/licenses.html");
                     MaterialDialog.Builder(getActivity())
-                            .title("Licenses")
+                            .title(R.string.main_licenses)
                             .customView(webView, false)
-                            .positiveText("Done")
+                            .positiveText(R.string.dialog_done)
                             .show();
                     return true
                 }
