@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
-def retrieveProp(key) {
+def retrieveProp(String key) {
     try {
         Properties props = new Properties()
         props.load(new FileInputStream("private.props"))
