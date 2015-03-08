@@ -10,6 +10,7 @@
             android:title="Open image"
             android:summary="Select an image from storage to generate a palette from."
             android:icon="@drawable/ic_action_folder_open"
+            android:persistent="false"
             />
 
         <Preference
@@ -17,6 +18,7 @@
             android:title="Take picture"
             android:summary="Generate a palette from a photo."
             android:icon="@drawable/ic_action_camera"
+            android:persistent="false"
             />
 
         <Preference
@@ -24,6 +26,7 @@
             android:title="Open image URL"
             android:summary="Generate a palette using an image from the web."
             android:icon="@drawable/ic_action_link"
+            android:persistent="false"
             />
 
         <CheckBoxPreference
@@ -42,17 +45,20 @@
             android:key="pref_key_dev"
             android:title="Developer"
             android:summary="Henri (Zac) Sweers"
+            android:persistent="false"
             />
 
         <Preference
             android:key="pref_key_licenses"
             android:title="Licenses"
+            android:persistent="false"
             />
 
         <Preference
             android:key="pref_key_source"
             android:title="Source Code"
             android:summary="This project is open source, and written in Kotlin! Feel free to fork, contribute, etc."
+            android:persistent="false"
             />
 
     </PreferenceCategory>

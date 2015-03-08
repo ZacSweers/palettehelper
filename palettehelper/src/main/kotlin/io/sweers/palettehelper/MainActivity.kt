@@ -58,7 +58,7 @@ public class MainActivity : ActionBarActivity() {
             super.onCreate(savedInstanceState)
             Timber.d("Starting up PreferenceFragment.")
             setRetainInstance(true)
-            addPreferencesFromResource(R.xml.prefs)
+            addPreferencesFromResource(R.xml.main_activity_pref_screen)
 
             // Hide pick intent option if it's not possible. Should be rare though
             Timber.d("Checking for pick intent.")
