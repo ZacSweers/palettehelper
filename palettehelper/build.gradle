@@ -88,7 +88,7 @@ def getPassword() {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'org.jetbrains.kotlin:kotlin-stdlib:0.10.770'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib:0.10.1316'
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:palette-v7:21.0.3'
     compile 'com.android.support:support-annotations:21.0.3'
