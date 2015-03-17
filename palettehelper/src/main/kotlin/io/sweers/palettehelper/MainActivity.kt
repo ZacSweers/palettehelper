@@ -215,13 +215,11 @@ public class MainActivity : ActionBarActivity() {
                 val intent = Intent(getActivity(), javaClass<PaletteDetailActivity>())
                 if (requestCode == REQUEST_LOAD_IMAGE && data != null) {
                     Timber.d("Activity result - loading image from internal storage.")
-                    PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_INTERNAL, ANALYTICS_NAV_DETAIL)
                     val selectedImage = data.getData()
                     intent.putExtra(PaletteDetailActivity.KEY_URI, selectedImage.toString())
                     startActivity(intent)
                 } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
                     Timber.d("Activity result - loading image from camera capture.")
-                    PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_CAMERA, ANALYTICS_NAV_DETAIL)
                     intent.putExtra(PaletteDetailActivity.KEY_CAMERA, imagePath)
                     startActivity(intent);
                 }

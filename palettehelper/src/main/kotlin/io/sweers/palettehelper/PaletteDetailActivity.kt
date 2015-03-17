@@ -78,13 +78,17 @@ public class PaletteDetailActivity : ActionBarActivity() {
             }
             intent.hasExtra(KEY_URI) -> {
                 Timber.d("Uri specified, trying to decode file")
+                PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_INTERNAL, ANALYTICS_NAV_DETAIL)
                 imageUri = intent.getStringExtra(KEY_URI)
             }
             intent.hasExtra(KEY_CAMERA) -> {
                 Timber.d("Path specified, trying to decode file")
+                PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_CAMERA, ANALYTICS_NAV_DETAIL)
                 imageUri = "file://${intent.getStringExtra(KEY_CAMERA)}"
             }
             Intent.ACTION_SEND == action -> {
+                Timber.d("Received URL, trying to download")
+                PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_URL, ANALYTICS_NAV_DETAIL)
                 imageUri = intent.getStringExtra(Intent.EXTRA_TEXT);
             }
             else -> {
