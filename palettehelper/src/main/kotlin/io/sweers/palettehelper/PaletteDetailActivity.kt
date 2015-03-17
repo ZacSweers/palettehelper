@@ -48,6 +48,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
     val toolbar: Toolbar by bindView(R.id.toolbar)
     val gridView: StickyGridHeadersGridView by bindView(R.id.gv)
     val imageView: ImageView by bindView(R.id.iv)
+    var active = true;
 
     // Extension functions to Swatch to get hex values
     public fun Swatch.rgbHex(): String = rgbToHex(getRgb())
@@ -97,7 +98,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
                     .progress(true, 0)
                     .build()
 
-            val runnable: Runnable = Runnable { dialog.show() }
+            val runnable: Runnable = Runnable { if (active) dialog.show() }
             val handler = Handler(Looper.getMainLooper());
             handler.postDelayed(runnable, 500)  // Wait half a second before showing the dialog to avoid flashing effect if it loads fast
 
@@ -125,6 +126,16 @@ public class PaletteDetailActivity : ActionBarActivity() {
             Timber.e("Invalid imageUri")
             errorOut()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        active = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        active = false
     }
 
     private fun errorOut() {
