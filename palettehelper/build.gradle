@@ -88,15 +88,15 @@ def getPassword() {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'org.jetbrains.kotlin:kotlin-stdlib:0.10.1316'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$rootProject.ext.kotlinVersion"
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:palette-v7:22.0.0'
     compile 'com.android.support:support-annotations:22.0.0'
     compile 'com.google.android.gms:play-services-base:6.5.87'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
     compile 'com.tonicartos:stickygridheaders:1.0.1'
-    compile 'com.afollestad:material-dialogs:0.6.3.5'
+    compile 'com.afollestad:material-dialogs:0.6.4.0'
     compile 'com.bugsnag:bugsnag-android:3.2.5'
-    compile 'com.jakewharton.timber:timber:2.5.0'
+    compile 'com.jakewharton.timber:timber:2.7.1'
     compile "com.mixpanel.android:mixpanel-android:4.5.3"
 }
