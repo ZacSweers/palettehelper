@@ -79,6 +79,7 @@ public class MainActivity : ActionBarActivity() {
             Timber.d("Clicked preference ${preference.getKey()}")
             when (preference.getKey()) {
                 "pref_key_open" -> {
+                    PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_INTERNAL)
                     val i = createPickIntent()
                     startActivityForResult(i, REQUEST_LOAD_IMAGE)
                     return true
@@ -89,6 +90,7 @@ public class MainActivity : ActionBarActivity() {
                     return true;
                 }
                 "pref_key_url" -> {
+                    PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_URL)
                     val inputView = View.inflate(getActivity(), R.layout.basic_edittext_dialog, null);
                     val input = inputView.findViewById(R.id.et) as EditText
                     MaterialDialog.Builder(getActivity())
