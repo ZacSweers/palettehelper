@@ -13,7 +13,9 @@
         android:maxHeight="@dimen/max_image_height"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        android:contentDescription="@string/cd_detail_image" />
+        android:contentDescription="@string/cd_detail_image"
+        android:transitionName="@string/transition_image"
+        />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"

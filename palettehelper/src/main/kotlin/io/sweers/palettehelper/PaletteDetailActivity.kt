@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v7.app.ActionBarActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
@@ -105,6 +107,16 @@ public class PaletteDetailActivity : ActionBarActivity() {
             ImageLoader.getInstance().displayImage(imageUri, image_view, object : SimpleImageLoadingListener() {
                 override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
                     handler.removeCallbacks(runnable)
+
+                    view.setOnClickListener {
+                        val photoIntent = Intent(this@PaletteDetailActivity, javaClass<PhotoActivity>())
+                        photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
+
+                        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity, view, getString(R.string.transition_image)).toBundle()
+
+                        ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, options)
+                    }
+
                     if (dialog.isShowing()) {
                         dialog.dismiss()
                     }
