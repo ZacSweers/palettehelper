@@ -1,18 +1,16 @@
 package io.sweers.palettehelper
 
 import android.app.Application
-import timber.log.Timber
+import com.bugsnag.android.BeforeNotify
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Error
-import com.bugsnag.android.BeforeNotify
-import com.google.android.gms.analytics.GoogleAnalytics
-import kotlin.properties.Delegates
-import com.google.android.gms.analytics.Tracker
 import com.mixpanel.android.mpmetrics.MixpanelAPI
+import timber.log.Timber
+import kotlin.properties.Delegates
 
 class PaletteHelperApplication: Application() {
 
-    class object {
+    companion object {
         var mixPanel: MixpanelAPI by Delegates.notNull()
     }
 

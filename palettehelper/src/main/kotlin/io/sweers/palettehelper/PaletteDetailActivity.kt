@@ -5,49 +5,39 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.preference.PreferenceManager
 import android.support.v7.app.ActionBarActivity
 import android.support.v7.graphics.Palette
-import android.support.v7.widget.Toolbar
+import android.support.v7.graphics.Palette.Swatch
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-
+import android.widget.*
+import com.afollestad.materialdialogs.GravityEnum
 import com.afollestad.materialdialogs.MaterialDialog
-import com.tonicartos.widget.stickygridheaders.StickyGridHeadersGridView
+import com.afollestad.materialdialogs.Theme
+import com.nostra13.universalimageloader.core.ImageLoader
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import com.nostra13.universalimageloader.core.assist.FailReason
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
-
+import kotlinx.android.synthetic.activity_palette_detail.grid_view
+import kotlinx.android.synthetic.activity_palette_detail.image_view
+import kotlinx.android.synthetic.activity_palette_detail.toolbar
+import timber.log.Timber
 import java.util.ArrayList
 import java.util.Arrays
 
-import android.support.v7.graphics.Palette.Swatch
-import com.afollestad.materialdialogs.GravityEnum
-import android.widget.EditText
-import android.preference.PreferenceManager
-import com.afollestad.materialdialogs.Theme
-import timber.log.Timber
-import android.view.Gravity
-import com.nostra13.universalimageloader.core.ImageLoader
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
-import com.nostra13.universalimageloader.core.assist.FailReason
-import android.os.Handler
-import android.os.Looper
-
 public class PaletteDetailActivity : ActionBarActivity() {
 
-    class object {
+    companion object {
         val KEY_URI = "uri_path"
         val KEY_CAMERA = "camera"
     }
 
     val DEFAULT_NUM_COLORS = 16
-    val toolbar: Toolbar by bindView(R.id.toolbar)
-    val gridView: StickyGridHeadersGridView by bindView(R.id.gv)
-    val imageView: ImageView by bindView(R.id.iv)
     var active = true;
 
     // Extension functions to Swatch to get hex values
@@ -107,7 +97,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
             handler.postDelayed(runnable, 500)  // Wait half a second before showing the dialog to avoid flashing effect if it loads fast
 
             ImageLoader.getInstance().init(ImageLoaderConfiguration.Builder(this).build());
-            ImageLoader.getInstance().displayImage(imageUri, imageView, object : SimpleImageLoadingListener() {
+            ImageLoader.getInstance().displayImage(imageUri, image_view, object : SimpleImageLoadingListener() {
                 override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
                     handler.removeCallbacks(runnable)
                     if (dialog.isShowing()) {
@@ -217,8 +207,8 @@ public class PaletteDetailActivity : ActionBarActivity() {
 
             Timber.d("Setting up adapter with swatches")
             val adapter = ResultsAdapter(swatches)
-            gridView.setAdapter(adapter)
-            gridView.setOnItemClickListener(adapter)
+            grid_view.setAdapter(adapter)
+            grid_view.setOnItemClickListener(adapter)
         })
     }
 

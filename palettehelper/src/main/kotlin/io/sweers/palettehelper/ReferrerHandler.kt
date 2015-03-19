@@ -13,7 +13,7 @@ import timber.log.Timber
  */
 public class ReferrerHandler: BroadcastReceiver() {
 
-    class object {
+    companion object {
         val VENDING_REFERRED_INFO = "referrer"
 
         // Required params

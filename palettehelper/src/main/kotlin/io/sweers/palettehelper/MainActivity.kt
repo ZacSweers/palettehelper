@@ -1,29 +1,28 @@
 package io.sweers.palettehelper
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
+import android.os.Environment
 import android.preference.Preference
+import android.preference.PreferenceCategory
 import android.preference.PreferenceFragment
 import android.preference.PreferenceScreen
 import android.provider.MediaStore
 import android.support.v7.app.ActionBarActivity
-import android.os.Bundle
-import android.app.Activity
+import android.text.Html
+import android.util.Patterns
+import android.view.View
+import android.webkit.WebView
+import android.widget.EditText
+import com.afollestad.materialdialogs.MaterialDialog
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
-import java.util.Date
-import android.os.Environment
 import java.text.SimpleDateFormat
+import java.util.Date
 import kotlin.properties.Delegates
-import com.afollestad.materialdialogs.MaterialDialog
-import android.text.Html
-import android.preference.PreferenceCategory
-import timber.log.Timber
-import android.webkit.WebView
-import android.view.View
-import android.widget.EditText
-import android.util.Patterns
-import android.text.InputType
 
 public class MainActivity : ActionBarActivity() {
 
@@ -48,7 +47,7 @@ public class MainActivity : ActionBarActivity() {
         private val REQUEST_LOAD_IMAGE = 1
         private val REQUEST_IMAGE_CAPTURE = 2
 
-        class object {
+        companion object {
             public fun newInstance(): SettingsFragment {
                 return SettingsFragment()
             }

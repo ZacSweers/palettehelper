@@ -1,11 +1,11 @@
 package io.sweers.palettehelper
 
-import timber.log.Timber
-import java.util.Deque
-import java.util.ArrayDeque
+import android.util.Log
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Error
-import android.util.Log
+import timber.log.Timber
+import java.util.ArrayDeque
+import java.util.Deque
 
 /**
  * A logging implementation which buffers the last 200 messages and notifies on error exceptions.
@@ -14,7 +14,7 @@ import android.util.Log
  */
 final class BugsnagTree: Timber.HollowTree() {
 
-    class object {
+    companion object {
         private val BUFFER_SIZE = 200
 
         private fun priorityToString(priority: Int): String {
