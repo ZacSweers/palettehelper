@@ -1,21 +1,19 @@
 package io.sweers.palettehelper
 
-import android.support.v7.app.ActionBarActivity
 import android.os.Bundle
-import uk.co.senab.photoview.PhotoView
+import android.support.v7.app.ActionBarActivity
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import kotlinx.android.synthetic.activity_photo.photo_view as photoView
 
 /**
- * Created by hsweers on 3/19/15.
+ * Displays an image using the PhotoView library
  */
 class PhotoActivity: ActionBarActivity() {
 
-    class object {
+    companion object {
         val EXTRA_URI = "extra_uil_uri"
     }
-
-    val photoView: PhotoView by bindView(R.id.photo_view)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
