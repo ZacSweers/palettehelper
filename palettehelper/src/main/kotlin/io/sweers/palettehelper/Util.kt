@@ -22,17 +22,26 @@ public fun copyToClipboard(context: Context, text: String) {
     clipboard.setPrimaryClip(clip)
 }
 
+/**
+ * Copies given text to the clipboard and notifies via Toast
+ */
 public fun copyAndNotify(context: Context, hex: String) {
     copyToClipboard(context, hex)
     Toast.makeText(context, "Copied ${hex} to clipboard", Toast.LENGTH_SHORT).show();
 }
 
+/**
+ * Gets the current text on the clipboard, if any
+ */
 public fun getClipData(context: Context) : CharSequence {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
     val clip = clipboard.getPrimaryClip().getItemAt(0).coerceToText(context)
     return clip
 }
 
+/**
+ * Implementation of BaseImageDownloader that uses OkHttp
+ */
 public class OkHttpImageDownloader : BaseImageDownloader {
 
     private var client: OkHttpClient by Delegates.notNull()

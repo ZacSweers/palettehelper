@@ -3,13 +3,16 @@ package io.sweers.palettehelper
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import java.net.URLDecoder
-import java.io.UnsupportedEncodingException
-import java.util.LinkedHashMap
 import timber.log.Timber
+import java.io.UnsupportedEncodingException
+import java.net.URLDecoder
+import java.util.LinkedHashMap
 
 /**
- * Created by hsweers on 2/19/15.
+ * This class handles any referrer information passed back to the app after installation and
+ * passes it up to analytics.
+ *
+ * [More info](https://developers.google.com/analytics/devguides/collection/android/v4/campaigns)
  */
 public class ReferrerHandler: BroadcastReceiver() {
 
@@ -52,7 +55,10 @@ public class ReferrerHandler: BroadcastReceiver() {
     }
 
     /**
-     * Utility function that splits query params into a hashmap
+     * Utility function that tries to split query params into a Map
+     *
+     * @param query The URL query with unsplit params
+     * @return A Map of the query param keys mapped to their values
      */
     private fun splitQuery(query: String): LinkedHashMap<String, String>? {
         val queryPairs = LinkedHashMap<String, String>()

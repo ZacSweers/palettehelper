@@ -149,12 +149,21 @@ public class PaletteDetailActivity : ActionBarActivity() {
         active = false
     }
 
+    /**
+     * Errors end up here, where we log it and let the user know before exiting the activity.
+     */
     private fun errorOut() {
         Timber.e("Given an intent, but we can't do anything with the provided info.")
         Toast.makeText(this, getString(R.string.detail_invalid_input), Toast.LENGTH_SHORT).show()
         finish()
     }
 
+    /**
+     * If the user disables the default color count, the detail activity will route to this to
+     * prompt the user to input the number of colors.
+     *
+     * @param bitmap the image bitmap to eventually feed into Palette.
+     */
     private fun promptForNumColors(bitmap: Bitmap) {
         val inputView = View.inflate(this, R.layout.colors_prompt, null);
         val input = inputView.findViewById(R.id.et) as EditText
@@ -208,6 +217,14 @@ public class PaletteDetailActivity : ActionBarActivity() {
                 .show()
     }
 
+    /**
+     * This is where the actual generation happens. Once the library calls back with the generated
+     * palette, the gridview's list adapter is updated with the standard colors prefixed to a list
+     * of *all* the colors.
+     *
+     * @param bitmap the image bitmap to feed into Palette
+     * @param numColors the number of colors to generate, defaulting to 16
+     */
     private fun generatePalette(bitmap: Bitmap, numColors: Int = 16) {
         Timber.d("Generating palette")
         Palette.generateAsync(bitmap, numColors, { palette ->
