@@ -6,16 +6,25 @@
     android:orientation="vertical"
     >
 
-    <ImageView
-        android:id="@+id/image_view"
+    <FrameLayout
+        android:id="@+id/image_view_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxHeight="@dimen/max_image_height"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/cd_detail_image"
-        android:transitionName="@string/transition_image"
-        />
+        android:foreground="?attr/selectableItemBackground"
+        >
+
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="@dimen/max_image_height"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/cd_detail_image"
+            android:transitionName="@string/transition_image"
+            />
+
+    </FrameLayout>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -36,7 +45,7 @@
         android:drawSelectorOnTop="true"
         android:listSelector="?attr/selectableItemBackground"
         android:overScrollMode="never"
-        android:layout_below="@id/image_view"
+        android:layout_below="@id/image_view_container"
         />
 
 </RelativeLayout>

@@ -32,6 +32,7 @@ import java.util.ArrayList
 import java.util.Arrays
 import kotlinx.android.synthetic.activity_palette_detail.grid_view as gridView
 import kotlinx.android.synthetic.activity_palette_detail.image_view as imageView
+import kotlinx.android.synthetic.activity_palette_detail.image_view_container as imageViewContainer
 
 public class PaletteDetailActivity : ActionBarActivity() {
 
@@ -108,7 +109,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
                 override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
                     handler.removeCallbacks(runnable)
 
-                    view.setOnClickListener {
+                    imageViewContainer.setOnClickListener {
                         val photoIntent = Intent(this@PaletteDetailActivity, javaClass<PhotoActivity>())
                         photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
 
