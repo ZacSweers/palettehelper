@@ -104,7 +104,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:palette-v7:22.0.0'
     compile 'com.android.support:support-annotations:22.0.0'
-    compile 'com.google.android.gms:play-services-base:6.5.87'
+    compile 'com.google.android.gms:play-services-base:7.0.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
     compile 'com.tonicartos:stickygridheaders:1.0.1'
     compile 'com.afollestad:material-dialogs:0.6.4.7'
