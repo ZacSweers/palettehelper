@@ -25,7 +25,7 @@ def retrieveProp(String key) {
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "22"
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "io.sweers.palettehelper"
