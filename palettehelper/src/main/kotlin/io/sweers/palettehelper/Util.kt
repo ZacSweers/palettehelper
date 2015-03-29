@@ -27,6 +27,12 @@ public fun copyAndNotify(context: Context, hex: String) {
     Toast.makeText(context, "Copied ${hex} to clipboard", Toast.LENGTH_SHORT).show();
 }
 
+public fun getClipData(context: Context) : CharSequence {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+    val clip = clipboard.getPrimaryClip().getItemAt(0).coerceToText(context)
+    return clip
+}
+
 public class OkHttpImageDownloader : BaseImageDownloader {
 
     private var client: OkHttpClient by Delegates.notNull()

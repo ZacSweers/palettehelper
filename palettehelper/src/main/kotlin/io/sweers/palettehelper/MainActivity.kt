@@ -92,6 +92,11 @@ public class MainActivity : ActionBarActivity() {
                     PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_URL)
                     val inputView = View.inflate(getActivity(), R.layout.basic_edittext_dialog, null);
                     val input = inputView.findViewById(R.id.et) as EditText
+                    val clipText = getClipData(getActivity())
+                    if (Patterns.WEB_URL.matcher(clipText).matches()) {
+                        input.setText(clipText)
+                        input.setSelection(clipText.length())
+                    }
                     MaterialDialog.Builder(getActivity())
                             .title(R.string.main_open_url)
                             .customView(inputView, false)
