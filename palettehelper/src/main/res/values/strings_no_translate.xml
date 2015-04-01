@@ -4,4 +4,5 @@
     <string name="main_developer_summary">Henri (Zac) Sweers</string>
     <string name="detail_lorem">Lorem Ipsum</string>
     <string name="detail_lorem_full">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="transition_image">transition_image</string>
 </resources>

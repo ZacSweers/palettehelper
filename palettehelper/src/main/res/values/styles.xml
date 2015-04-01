@@ -8,4 +8,11 @@
         <item name="colorAccent">#ff818ad5</item>
     </style>
 
+    <style name="Transparent" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
 </resources>

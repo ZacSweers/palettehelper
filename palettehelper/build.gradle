@@ -116,4 +116,5 @@ dependencies {
     compile 'com.jakewharton.timber:timber:2.7.1'
     compile "com.mixpanel.android:mixpanel-android:4.5.3"
     compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile 'com.github.chrisbanes.photoview:library:1.2.3'
 }

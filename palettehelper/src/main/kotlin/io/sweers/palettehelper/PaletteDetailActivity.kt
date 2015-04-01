@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v7.app.ActionBarActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
@@ -19,17 +21,16 @@ import com.afollestad.materialdialogs.GravityEnum
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.Theme
 import com.nostra13.universalimageloader.core.ImageLoader
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
-import com.squareup.okhttp.OkHttpClient
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
-import kotlinx.android.synthetic.activity_palette_detail.grid_view
-import kotlinx.android.synthetic.activity_palette_detail.image_view
 import kotlinx.android.synthetic.activity_palette_detail.toolbar
 import timber.log.Timber
 import java.util.ArrayList
 import java.util.Arrays
+import kotlinx.android.synthetic.activity_palette_detail.grid_view as gridView
+import kotlinx.android.synthetic.activity_palette_detail.image_view as imageView
+import kotlinx.android.synthetic.activity_palette_detail.image_view_container as imageViewContainer
 
 public class PaletteDetailActivity : ActionBarActivity() {
 
@@ -97,14 +98,16 @@ public class PaletteDetailActivity : ActionBarActivity() {
             val handler = Handler(Looper.getMainLooper());
             handler.postDelayed(runnable, 500)  // Wait half a second before showing the dialog to avoid flashing effect if it loads fast
 
-            ImageLoader.getInstance().init(
-                    ImageLoaderConfiguration.Builder(this)
-                            .imageDownloader(OkHttpImageDownloader(this, OkHttpClient()))
-                            .build()
-            );
-            ImageLoader.getInstance().displayImage(imageUri, image_view, object : SimpleImageLoadingListener() {
+            ImageLoader.getInstance().displayImage(imageUri, imageView, object : SimpleImageLoadingListener() {
                 override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
                     handler.removeCallbacks(runnable)
+
+                    imageViewContainer.setOnClickListener {
+                        val photoIntent = Intent(this@PaletteDetailActivity, javaClass<PhotoActivity>())
+                        photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
+                        ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity).toBundle())
+                    }
+
                     if (dialog.isShowing()) {
                         dialog.dismiss()
                     }
@@ -137,12 +140,21 @@ public class PaletteDetailActivity : ActionBarActivity() {
         active = false
     }
 
+    /**
+     * Errors end up here, where we log it and let the user know before exiting the activity.
+     */
     private fun errorOut() {
         Timber.e("Given an intent, but we can't do anything with the provided info.")
         Toast.makeText(this, getString(R.string.detail_invalid_input), Toast.LENGTH_SHORT).show()
         finish()
     }
 
+    /**
+     * If the user disables the default color count, the detail activity will route to this to
+     * prompt the user to input the number of colors.
+     *
+     * @param bitmap the image bitmap to eventually feed into Palette.
+     */
     private fun promptForNumColors(bitmap: Bitmap) {
         val inputView = View.inflate(this, R.layout.colors_prompt, null);
         val input = inputView.findViewById(R.id.et) as EditText
@@ -196,6 +208,14 @@ public class PaletteDetailActivity : ActionBarActivity() {
                 .show()
     }
 
+    /**
+     * This is where the actual generation happens. Once the library calls back with the generated
+     * palette, the gridview's list adapter is updated with the standard colors prefixed to a list
+     * of *all* the colors.
+     *
+     * @param bitmap the image bitmap to feed into Palette
+     * @param numColors the number of colors to generate, defaulting to 16
+     */
     private fun generatePalette(bitmap: Bitmap, numColors: Int = 16) {
         Timber.d("Generating palette")
         Palette.generateAsync(bitmap, numColors, { palette ->
@@ -212,8 +232,8 @@ public class PaletteDetailActivity : ActionBarActivity() {
 
             Timber.d("Setting up adapter with swatches")
             val adapter = ResultsAdapter(swatches)
-            grid_view.setAdapter(adapter)
-            grid_view.setOnItemClickListener(adapter)
+            gridView.setAdapter(adapter)
+            gridView.setOnItemClickListener(adapter)
         })
     }
 

@@ -5,6 +5,9 @@ import com.bugsnag.android.BeforeNotify
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Error
 import com.mixpanel.android.mpmetrics.MixpanelAPI
+import com.nostra13.universalimageloader.core.ImageLoader
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import com.squareup.okhttp.OkHttpClient
 import timber.log.Timber
 import kotlin.properties.Delegates
 
@@ -36,6 +39,11 @@ class PaletteHelperApplication: Application() {
         }
 
         setUpAnalytics()
+        ImageLoader.getInstance().init(
+                ImageLoaderConfiguration.Builder(this)
+                        .imageDownloader(OkHttpImageDownloader(this, OkHttpClient()))
+                        .build()
+        );
     }
 
     public fun setUpAnalytics() {

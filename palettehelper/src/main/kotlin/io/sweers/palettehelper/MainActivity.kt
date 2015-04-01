@@ -93,6 +93,8 @@ public class MainActivity : ActionBarActivity() {
                     val inputView = View.inflate(getActivity(), R.layout.basic_edittext_dialog, null);
                     val input = inputView.findViewById(R.id.et) as EditText
                     val clipText = getClipData(getActivity())
+
+                    // If there's a URL in the clipboard, guess that that's what they want to retrieve and autofill
                     if (Patterns.WEB_URL.matcher(clipText).matches()) {
                         input.setText(clipText)
                         input.setSelection(clipText.length())
@@ -162,6 +164,12 @@ public class MainActivity : ActionBarActivity() {
             return super.onPreferenceTreeClick(preferenceScreen, preference)
         }
 
+        /**
+         * For images captured from the camera, we need to create a File first to tell the camera
+         * where to store the image.
+         *
+         * @return the File created for the image to be store under.
+         */
         fun createImageFile(): File {
             Timber.d("Creating imageFile")
             // Create an image file name
@@ -179,6 +187,12 @@ public class MainActivity : ActionBarActivity() {
             return imageFile;
         }
 
+        /**
+         * This checks to see if there is a suitable activity to handle the `ACTION_PICK` intent
+         * and returns it if found. `ACTION_PICK` is for picking an image from an external app.
+         *
+         * @return A prepared intent if found.
+         */
         fun createPickIntent(): Intent? {
             val picImageIntent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             if (picImageIntent.resolveActivity(getActivity().getPackageManager()) != null) {
@@ -188,6 +202,13 @@ public class MainActivity : ActionBarActivity() {
             }
         }
 
+        /**
+         * This checks to see if there is a suitable activity to handle the `ACTION_IMAGE_CAPTURE`
+         * intent and returns it if found. `ACTION_IMAGE_CAPTURE` is for letting another app take
+         * a picture from the camera and store it in a file that we specify.
+         *
+         * @return A prepared intent if found.
+         */
         fun createCameraIntent(): Intent? {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
@@ -197,6 +218,13 @@ public class MainActivity : ActionBarActivity() {
             }
         }
 
+        /**
+         * This utility function combines the camera intent creation and image file creation, and
+         * ultimately fires the intent.
+         *
+         * @see createCameraIntent()
+         * @see createImageFile()
+         */
         fun dispatchTakePictureIntent() {
             val takePictureIntent = createCameraIntent()
             // Ensure that there's a camera activity to handle the intent

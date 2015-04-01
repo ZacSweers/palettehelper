@@ -47,6 +47,12 @@
             </intent-filter>
 
         </activity>
+        <activity
+            android:name="io.sweers.palettehelper.PhotoActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/Transparent"
+            android:configChanges="orientation|keyboardHidden"/>
 
         <!-- Play Store install referrer information -->
         <receiver android:name="io.sweers.palettehelper.ReferrerHandler"
