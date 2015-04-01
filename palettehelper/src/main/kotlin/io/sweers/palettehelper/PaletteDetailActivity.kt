@@ -105,10 +105,7 @@ public class PaletteDetailActivity : ActionBarActivity() {
                     imageViewContainer.setOnClickListener {
                         val photoIntent = Intent(this@PaletteDetailActivity, javaClass<PhotoActivity>())
                         photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
-
-                        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity, view, getString(R.string.transition_image)).toBundle()
-
-                        ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, options)
+                        ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity).toBundle())
                     }
 
                     if (dialog.isShowing()) {
