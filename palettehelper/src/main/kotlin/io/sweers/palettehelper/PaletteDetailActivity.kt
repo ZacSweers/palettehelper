@@ -282,7 +282,12 @@ public class PaletteDetailActivity : ActionBarActivity() {
                 holder.text?.setTextColor(Color.parseColor("#ADADAD"))
                 convertViewCopy?.setBackgroundColor(Color.parseColor("#252626"))
             } else {
-                convertViewCopy?.setBackgroundColor(swatch.getRgb())
+                var backgroundColor = swatch.getRgb()
+                if (backgroundColor == Color.TRANSPARENT) {
+                    // Can't have transparent backgrounds apparently? I get crash reports for this
+                    backgroundColor = Color.parseColor("#252626")
+                }
+                convertViewCopy?.setBackgroundColor(backgroundColor)
                 holder.text?.setTextColor(swatch.getTitleTextColor())
                 val hex = rgbToHex(swatch.getRgb())
                 if (position < 6) {
