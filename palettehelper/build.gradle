@@ -35,8 +35,8 @@ android {
         applicationId "io.sweers.palettehelper"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 9
-        versionName "1.2.0"
+        versionCode 10
+        versionName "1.2.1"
 
         buildConfigField "String", "BUGSNAG_KEY", "\"${retrieveProp('BUGSNAG_KEY')}\""
         buildConfigField "String", "ANALYTICS_KEY", "\"${retrieveProp('ANALYTICS_KEY')}\""
