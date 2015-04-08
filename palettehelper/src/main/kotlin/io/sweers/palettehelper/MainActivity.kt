@@ -16,6 +16,7 @@ import android.util.Patterns
 import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
+import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import timber.log.Timber
 import java.io.File
@@ -250,8 +251,12 @@ public class MainActivity : ActionBarActivity() {
                 if (requestCode == REQUEST_LOAD_IMAGE && data != null) {
                     Timber.d("Activity result - loading image from internal storage.")
                     val selectedImage = data.getData()
-                    intent.putExtra(PaletteDetailActivity.KEY_URI, selectedImage.toString())
-                    startActivity(intent)
+                    if (selectedImage != null) {
+                        intent.putExtra(PaletteDetailActivity.KEY_URI, selectedImage.toString())
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(getActivity(), R.string.generic_error, Toast.LENGTH_SHORT).show()
+                    }
                 } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
                     Timber.d("Activity result - loading image from camera capture.")
                     intent.putExtra(PaletteDetailActivity.KEY_CAMERA, imagePath)
