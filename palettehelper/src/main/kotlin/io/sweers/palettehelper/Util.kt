@@ -35,8 +35,11 @@ public fun copyAndNotify(context: Context, hex: String) {
  */
 public fun getClipData(context: Context) : CharSequence {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-    val clip = clipboard.getPrimaryClip().getItemAt(0).coerceToText(context)
-    return clip
+    var clip = clipboard.getPrimaryClip()?.getItemAt(0)?.coerceToText(context)
+    if (clip == null) {
+        clip = ""
+    }
+    return clip as CharSequence
 }
 
 /**
