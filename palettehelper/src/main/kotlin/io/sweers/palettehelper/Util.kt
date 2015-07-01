@@ -39,7 +39,7 @@ public fun getClipData(context: Context) : CharSequence {
     if (clip == null) {
         clip = ""
     }
-    return clip as CharSequence
+    return clip
 }
 
 /**

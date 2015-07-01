@@ -1,7 +1,7 @@
 package io.sweers.palettehelper
 
 import android.os.Bundle
-import android.support.v7.app.ActionBarActivity
+import android.support.v7.app.AppCompatActivity
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import kotlinx.android.synthetic.activity_photo.photo_view as photoView
@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.activity_photo.photo_view as photoView
 /**
  * Displays an image using the PhotoView library
  */
-class PhotoActivity: ActionBarActivity() {
+class PhotoActivity: AppCompatActivity() {
 
     companion object {
         val EXTRA_URI = "extra_uil_uri"

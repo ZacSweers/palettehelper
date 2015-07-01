@@ -3,6 +3,7 @@ package io.sweers.palettehelper
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -216,23 +217,24 @@ public class PaletteDetailActivity : AppCompatActivity() {
      */
     private fun generatePalette(bitmap: Bitmap, numColors: Int = 16) {
         Timber.d("Generating palette")
-        Palette.generateAsync(bitmap, numColors, { palette ->
-            Timber.d("Palette generation done with ${palette.getSwatches().size()} colors extracted of ${numColors} requested")
-            val swatches = ArrayList(Arrays.asList<Swatch>(*array(
-                    palette.getVibrantSwatch(),
-                    palette.getMutedSwatch(),
-                    palette.getDarkVibrantSwatch(),
-                    palette.getDarkMutedSwatch(),
-                    palette.getLightVibrantSwatch(),
-                    palette.getLightMutedSwatch())
-            ))
-            swatches.addAll(palette.getSwatches())
+        Palette.Builder(bitmap)
+                .generate({ palette ->
+                    Timber.d("Palette generation done with ${palette.getSwatches().size()} colors extracted of ${numColors} requested")
+                    val swatches = ArrayList(Arrays.asList<Swatch>(*arrayOf(
+                            palette.getVibrantSwatch(),
+                            palette.getMutedSwatch(),
+                            palette.getDarkVibrantSwatch(),
+                            palette.getDarkMutedSwatch(),
+                            palette.getLightVibrantSwatch(),
+                            palette.getLightMutedSwatch())
+                    ))
+                    swatches.addAll(palette.getSwatches())
 
-            Timber.d("Setting up adapter with swatches")
-            val adapter = ResultsAdapter(swatches)
-            gridView.setAdapter(adapter)
-            gridView.setOnItemClickListener(adapter)
-        })
+                    Timber.d("Setting up adapter with swatches")
+                    val adapter = ResultsAdapter(swatches)
+                    gridView.setAdapter(adapter)
+                    gridView.setOnItemClickListener(adapter)
+                })
     }
 
     override fun onDestroy() {
@@ -351,12 +353,12 @@ public class PaletteDetailActivity : AppCompatActivity() {
 
         private fun showValues(swatch: Swatch) {
             Timber.d("Showing values")
-            val items = getString(R.string.dialog_values_list, swatch.rgbHex(), swatch.titleHex(), swatch.bodyHex(), swatch.getHsl()[0], swatch.getHsl()[1], swatch.getHsl()[2], swatch.getPopulation()).split("\n")
+            val items = getString(R.string.dialog_values_list, swatch.rgbHex(), swatch.titleHex(), swatch.bodyHex(), swatch.getHsl()[0], swatch.getHsl()[1], swatch.getHsl()[2], swatch.getPopulation()).splitBy("\n")
             MaterialDialog.Builder(this@PaletteDetailActivity)
                     .theme(if (swatch.getHsl()[2] > 0.5f) Theme.LIGHT else Theme.DARK)
                     .backgroundColor(swatch.getRgb())
                     .contentColor(swatch.getBodyTextColor())
-                    .items(items)
+                    .items(items.toTypedArray())
                     .itemsCallback(object : MaterialDialog.ListCallback {
                         override fun onSelection(dialog: MaterialDialog?, view: View?, position: Int, value: CharSequence?) {
                             when (position) {
