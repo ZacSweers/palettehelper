@@ -24,12 +24,14 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
+import kotlinx.android.synthetic.activity_palette_detail.toolbar
 import timber.log.Timber
 import java.util.ArrayList
 import java.util.Arrays
 import kotlinx.android.synthetic.activity_palette_detail.grid_view as gridView
 import kotlinx.android.synthetic.activity_palette_detail.image_view as imageView
 import kotlinx.android.synthetic.activity_palette_detail.image_view_container as imageViewContainer
+import kotlinx.android.synthetic.activity_palette_detail.toolbar as toolbar
 
 public class PaletteDetailActivity : AppCompatActivity() {
 
