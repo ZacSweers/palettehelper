@@ -10,7 +10,7 @@ import android.preference.PreferenceCategory
 import android.preference.PreferenceFragment
 import android.preference.PreferenceScreen
 import android.provider.MediaStore
-import android.support.v7.app.ActionBarActivity
+import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.util.Patterns
 import android.view.View
@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.properties.Delegates
 
-public class MainActivity : ActionBarActivity() {
+public class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

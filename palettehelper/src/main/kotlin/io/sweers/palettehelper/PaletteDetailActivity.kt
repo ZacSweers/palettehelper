@@ -3,14 +3,13 @@ package io.sweers.palettehelper
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.ActivityOptionsCompat
-import android.support.v7.app.ActionBarActivity
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
 import android.view.Gravity
@@ -24,7 +23,6 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
-import kotlinx.android.synthetic.activity_palette_detail.toolbar
 import timber.log.Timber
 import java.util.ArrayList
 import java.util.Arrays
@@ -32,7 +30,7 @@ import kotlinx.android.synthetic.activity_palette_detail.grid_view as gridView
 import kotlinx.android.synthetic.activity_palette_detail.image_view as imageView
 import kotlinx.android.synthetic.activity_palette_detail.image_view_container as imageViewContainer
 
-public class PaletteDetailActivity : ActionBarActivity() {
+public class PaletteDetailActivity : AppCompatActivity() {
 
     companion object {
         val KEY_URI = "uri_path"
