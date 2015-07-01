@@ -3,10 +3,8 @@ package io.sweers.palettehelper
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import timber.log.Timber
-import java.io.UnsupportedEncodingException
-import java.net.URLDecoder
-import java.util.LinkedHashMap
 
 /**
  * This class handles any referrer information passed back to the app after installation and
@@ -36,43 +34,22 @@ public class ReferrerHandler: BroadcastReceiver() {
             Timber.e(Exception(), "Referral info is null")
         }
 
-        val params = splitQuery(referralInfo)
+        val queryUri = Uri.parse(referralInfo)
 
-        if (params != null) {
-            Timber.d("Params are: ${params}")
-            PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_CAMPAIGN))
-            PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_SOURCE))
-            PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_MEDIUM))
-
-            if (params.containsKey(KEY_TERM)) {
-                PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_TERM))
-            }
-
-            if (params.containsKey(KEY_CONTENT)) {
-                PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, params.get(KEY_CONTENT))
-            }
+        if (queryUri != null) {
+            Timber.d("Params are: ${queryUri.toString()}")
+            var params = queryUri.getQueryParameterNames()
+            logParamIfValid(params, queryUri, KEY_CAMPAIGN)
+            logParamIfValid(params, queryUri, KEY_SOURCE)
+            logParamIfValid(params, queryUri, KEY_MEDIUM)
+            logParamIfValid(params, queryUri, KEY_TERM)
+            logParamIfValid(params, queryUri, KEY_CONTENT)
         }
     }
 
-    /**
-     * Utility function that tries to split query params into a Map
-     *
-     * @param query The URL query with unsplit params
-     * @return A Map of the query param keys mapped to their values
-     */
-    private fun splitQuery(query: String): LinkedHashMap<String, String>? {
-        val queryPairs = LinkedHashMap<String, String>()
-        val pairs = query.split("&")
-        for (pair in pairs) {
-            val idx = pair.indexOf('=')
-            try {
-                queryPairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"))
-            } catch (e: UnsupportedEncodingException) {
-                return null
-            }
-
+    fun logParamIfValid(params: Set<String>, queryUri: Uri, key: String) {
+        if (params.contains(key)) {
+            PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_PLAY_REFERRER, queryUri.getQueryParameter(key))
         }
-        return queryPairs
     }
-
 }
