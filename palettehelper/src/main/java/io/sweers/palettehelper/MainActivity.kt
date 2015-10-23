@@ -1,7 +1,9 @@
 package io.sweers.palettehelper
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -10,6 +12,9 @@ import android.preference.PreferenceCategory
 import android.preference.PreferenceFragment
 import android.preference.PreferenceScreen
 import android.provider.MediaStore
+import android.provider.Settings
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.util.Patterns
@@ -47,6 +52,9 @@ public class MainActivity : AppCompatActivity() {
         private var imagePath: String by Delegates.notNull()
         private val REQUEST_LOAD_IMAGE = 1
         private val REQUEST_IMAGE_CAPTURE = 2
+        private val REQUEST_READ_STORAGE_PERMISSION = 3
+        private val REQUEST_WRITE_STORAGE_PERMISSION = 4
+        private val REQUEST_APP_SETTINGS = 5
 
         companion object {
             public fun newInstance(): SettingsFragment {
@@ -80,8 +88,7 @@ public class MainActivity : AppCompatActivity() {
             when (preference.key) {
                 "pref_key_open" -> {
                     PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_INTERNAL)
-                    val i = createPickIntent()
-                    startActivityForResult(i, REQUEST_LOAD_IMAGE)
+                    dispatchPickIntent()
                     return true
                 }
                 "pref_key_camera" -> {
@@ -132,10 +139,10 @@ public class MainActivity : AppCompatActivity() {
                 }
                 "pref_key_dev" -> {
                     MaterialDialog.Builder(activity)
-                        .title(R.string.main_about)
-                        .content(Html.fromHtml(getString(R.string.about_body)))
-                        .positiveText(R.string.dialog_done)
-                        .show()
+                            .title(R.string.main_about)
+                            .content(Html.fromHtml(getString(R.string.about_body)))
+                            .positiveText(R.string.dialog_done)
+                            .show()
                     return true;
                 }
                 "pref_key_licenses" -> {
@@ -172,10 +179,10 @@ public class MainActivity : AppCompatActivity() {
             val imageFileName = "JPEG_" + timeStamp + "_";
             val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
             val imageFile = File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpg",         /* suffix */
+                    imageFileName, /* prefix */
+                    ".jpg", /* suffix */
                     storageDir      /* directory */
-                    );
+            );
 
             // Save a file: path for use with ACTION_VIEW intents
             imagePath = imageFile.absolutePath;
@@ -213,6 +220,37 @@ public class MainActivity : AppCompatActivity() {
             }
         }
 
+        fun dispatchPickIntent() {
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                val i = createPickIntent()
+                startActivityForResult(i, REQUEST_LOAD_IMAGE)
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    MaterialDialog.Builder(activity)
+                            .title(R.string.permission_request)
+                            .content(R.string.permission_request_read_storage)
+                            .autoDismiss(true)
+                            .cancelable(false)
+                            .positiveText(R.string.permission_request_next)
+                            .onPositive { dialog, dialogAction ->
+                                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                        REQUEST_READ_STORAGE_PERMISSION);
+                            }
+                            .show()
+                } else {
+                    MaterialDialog.Builder(activity)
+                            .content(R.string.permission_request_settings_message)
+                            .autoDismiss(true)
+                            .positiveText(R.string.permission_request_settings)
+                            .onPositive { dialog, dialogAction ->
+                                goToSettings()
+                            }
+                            .show()
+                }
+            }
+        }
+
         /**
          * This utility function combines the camera intent creation and image file creation, and
          * ultimately fires the intent.
@@ -221,18 +259,66 @@ public class MainActivity : AppCompatActivity() {
          * @see createImageFile()
          */
         fun dispatchTakePictureIntent() {
-            val takePictureIntent = createCameraIntent()
-            // Ensure that there's a camera activity to handle the intent
-            if (takePictureIntent != null) {
-                // Create the File where the photo should go
-                try {
-                    val imageFile = createImageFile();
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
-                    Timber.d("Dispatching intent to take a picture.")
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                } catch (ex: IOException) {
-                    // Error occurred while creating the File
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                val takePictureIntent = createCameraIntent()
+                // Ensure that there's a camera activity to handle the intent
+                if (takePictureIntent != null) {
+                    // Create the File where the photo should go
+                    try {
+                        val imageFile = createImageFile();
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
+                        Timber.d("Dispatching intent to take a picture.")
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    } catch (ex: IOException) {
+                        // Error occurred while creating the File
+                    }
                 }
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    MaterialDialog.Builder(activity)
+                            .title(R.string.permission_request)
+                            .content(R.string.permission_request_write_storage)
+                            .autoDismiss(true)
+                            .cancelable(false)
+                            .positiveText(R.string.permission_request_next)
+                            .onPositive { dialog, dialogAction ->
+                                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                                        REQUEST_WRITE_STORAGE_PERMISSION);
+                            }
+                            .show()
+                } else {
+                    MaterialDialog.Builder(activity)
+                            .content(R.string.permission_request_settings_message)
+                            .autoDismiss(true)
+                            .positiveText(R.string.permission_request_settings)
+                            .onPositive { dialog, dialogAction ->
+                                goToSettings()
+                            }
+                            .show()
+                }
+            }
+        }
+
+        private fun goToSettings() {
+            val myAppSettings: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" +
+                    activity.packageName));
+            myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+            myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivityForResult(myAppSettings, REQUEST_APP_SETTINGS);
+        }
+
+        override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?, grantResults: IntArray?) {
+            if (requestCode == REQUEST_WRITE_STORAGE_PERMISSION) {
+                if (grantResults?.size == 1 && grantResults?.get(0) == PackageManager.PERMISSION_GRANTED) {
+                    dispatchTakePictureIntent()
+                }
+            } else if (requestCode == REQUEST_READ_STORAGE_PERMISSION) {
+                if (grantResults?.size == 1 && grantResults?.get(0) == PackageManager.PERMISSION_GRANTED) {
+                    dispatchPickIntent()
+                }
+            } else {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             }
         }
 
