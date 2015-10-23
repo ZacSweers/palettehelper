@@ -32,7 +32,7 @@ import java.util.*
 public class PaletteDetailActivity : AppCompatActivity() {
 
     val toolbar: Toolbar by bindView(R.id.toolbar)
-    val imageViewContainer: ImageView by bindView(R.id.image_view_container)
+    val imageViewContainer: FrameLayout by bindView(R.id.image_view_container)
     val imageView: ImageView by bindView(R.id.image_view)
     val gridView: GridView by bindView(R.id.grid_view)
 
