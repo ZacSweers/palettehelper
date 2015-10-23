@@ -167,42 +167,36 @@ public class PaletteDetailActivity : AppCompatActivity() {
                 .negativeText(R.string.dialog_cancel)
                 .neutralText(R.string.dialog_default)
                 .autoDismiss(false)
-                .callback(object : MaterialDialog.ButtonCallback() {
-                    override fun onPositive(dialog: MaterialDialog) {
-                        val result = validateInput()
-                        if (result.isValid) {
-                            generatePalette(bitmap, result.value)
-                            dialog.dismiss()
-                            PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_NUMCOLORS, result.value.toString())
+                .onPositive { dialog, dialogAction ->
+                    var isValid: Boolean
+                    val inputText: String = input.text.toString()
+                    var number = DEFAULT_NUM_COLORS
+                    try {
+                        number = java.lang.Integer.parseInt(inputText)
+                        if (number < 1) {
+                            input.error = getString(R.string.detail_must_be_greater_than_one)
+                            isValid = false
+                        } else {
+                            isValid = true
                         }
+                    } catch (e: Exception) {
+                        input.error = getString(R.string.detail_invalid_input)
+                        isValid = false
                     }
-
-                    override fun onNegative(dialog: MaterialDialog) {
+                    if (isValid) {
+                        generatePalette(bitmap, number)
                         dialog.dismiss()
-                        finish()
+                        PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_NUMCOLORS, number.toString())
                     }
-
-                    override fun onNeutral(dialog: MaterialDialog) {
-                        dialog.dismiss()
-                        generatePalette(bitmap, DEFAULT_NUM_COLORS)
-                    }
-
-                    inner class Result(val isValid: Boolean, val value: Int)
-                    fun validateInput(): Result {
-                        val inputText: String = input.text.toString()
-                        try {
-                            val number = java.lang.Integer.parseInt(inputText)
-                            if (number < 1) {
-                                input.error = getString(R.string.detail_must_be_greater_than_one)
-                                return Result(false, -1)
-                            }
-                            return Result(true, number)
-                        } catch (e: Exception) {
-                            input.error = getString(R.string.detail_invalid_input)
-                            return Result(false, -1)
-                        }
-                    }
-                })
+                }
+                .onNegative { dialog, dialogAction ->
+                    dialog.dismiss()
+                    finish()
+                }
+                .onNeutral { dialog, dialogAction ->
+                    dialog.dismiss()
+                    generatePalette(bitmap, DEFAULT_NUM_COLORS)
+                }
                 .cancelListener({dialog ->
                     dialog.dismiss()
                     finish()
@@ -343,13 +337,11 @@ public class PaletteDetailActivity : AppCompatActivity() {
                         .positiveColor(swatch.bodyTextColor)
                         .neutralText(R.string.dialog_values)
                         .neutralColor(swatch.bodyTextColor)
-                        .callback(object : MaterialDialog.ButtonCallback() {
-                            override fun onPositive(dialog: MaterialDialog) = dialog.dismiss()
-                            override fun onNeutral(dialog: MaterialDialog) {
-                                dialog.dismiss()
-                                showValues(swatch)
-                            }
-                        })
+                        .onPositive { dialog, dialogAction -> dialog.dismiss() }
+                        .onNeutral { dialog, dialogAction ->
+                            dialog.dismiss()
+                            showValues(swatch)
+                        }
                         .show()
             }
         }
@@ -379,12 +371,10 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     .forceStacking(true)
                     .positiveText(R.string.dialog_copy_all)
                     .positiveColor(swatch.bodyTextColor)
-                    .callback(object : MaterialDialog.ButtonCallback() {
-                        override fun onPositive(dialog: MaterialDialog) {
-                            copyAndNotify(this@PaletteDetailActivity, swatch.toString())
-                            dialog.dismiss()
-                        }
-                    })
+                    .onPositive { dialog, dialogAction ->
+                        copyAndNotify(this@PaletteDetailActivity, swatch.toString())
+                        dialog.dismiss()
+                    }
                     .show()
         }
 

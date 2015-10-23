@@ -106,33 +106,27 @@ public class MainActivity : AppCompatActivity() {
                             .positiveText(R.string.dialog_done)
                             .negativeText(R.string.dialog_cancel)
                             .autoDismiss(false)
-                            .callback(object : MaterialDialog.ButtonCallback() {
-                                override fun onPositive(dialog: MaterialDialog) {
-                                    val result = validateInput()
-                                    if (result.isValid) {
-                                        dialog.dismiss()
-                                        val intent = Intent(Intent.ACTION_SEND)
-                                        intent.setClass(activity, PaletteDetailActivity::class.java)
-                                        intent.putExtra(Intent.EXTRA_TEXT, result.value)
-                                        startActivity(intent)
-                                    }
+                            .onPositive { dialog, dialogAction ->
+                                var isValid: Boolean
+                                val inputText: String = input.text.toString().trim().replace(" ", "")
+                                if (Patterns.WEB_URL.matcher(inputText).matches()) {
+                                    isValid = true
+                                    input.error = ""
+                                } else {
+                                    isValid = false
+                                    input.error = getString(R.string.main_open_url_error)
                                 }
-
-                                override fun onNegative(dialog: MaterialDialog?) {
-                                    dialog?.dismiss()
+                                if (isValid) {
+                                    dialog.dismiss()
+                                    val intent = Intent(Intent.ACTION_SEND)
+                                    intent.setClass(activity, PaletteDetailActivity::class.java)
+                                    intent.putExtra(Intent.EXTRA_TEXT, inputText)
+                                    startActivity(intent)
                                 }
-
-                                inner class Result(val isValid: Boolean, val value: String)
-                                fun validateInput(): Result {
-                                    val inputText: String = input.text.toString().trim().replace(" ", "")
-                                    if (Patterns.WEB_URL.matcher(inputText).matches()) {
-                                        return Result(true, inputText)
-                                    } else {
-                                        input.error = getString(R.string.main_open_url_error)
-                                        return Result(false, "")
-                                    }
-                                }
-                            })
+                            }
+                            .onNegative { dialog, dialogAction ->
+                                dialog?.dismiss()
+                            }
                             .show()
                     return true;
                 }
