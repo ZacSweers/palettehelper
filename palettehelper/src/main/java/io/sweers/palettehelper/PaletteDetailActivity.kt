@@ -13,10 +13,12 @@ import android.support.v4.app.ActivityOptionsCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
+import android.support.v7.widget.Toolbar
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import butterknife.bindView
 import com.afollestad.materialdialogs.GravityEnum
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.Theme
@@ -24,16 +26,15 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
-import kotlinx.android.synthetic.activity_palette_detail.toolbar
 import timber.log.Timber
-import java.util.ArrayList
-import java.util.Arrays
-import kotlinx.android.synthetic.activity_palette_detail.grid_view as gridView
-import kotlinx.android.synthetic.activity_palette_detail.image_view as imageView
-import kotlinx.android.synthetic.activity_palette_detail.image_view_container as imageViewContainer
-import kotlinx.android.synthetic.activity_palette_detail.toolbar as toolbar
+import java.util.*
 
 public class PaletteDetailActivity : AppCompatActivity() {
+
+    val toolbar: Toolbar by bindView(R.id.toolbar)
+    val imageViewContainer: ImageView by bindView(R.id.image_view_container)
+    val imageView: ImageView by bindView(R.id.image_view)
+    val gridView: GridView by bindView(R.id.grid_view)
 
     companion object {
         val KEY_URI = "uri_path"
