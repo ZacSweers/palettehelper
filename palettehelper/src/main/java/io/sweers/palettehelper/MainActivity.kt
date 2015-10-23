@@ -14,7 +14,6 @@ import android.preference.PreferenceScreen
 import android.provider.MediaStore
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.util.Patterns
