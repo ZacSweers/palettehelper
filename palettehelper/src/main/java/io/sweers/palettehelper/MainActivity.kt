@@ -55,6 +55,7 @@ public class MainActivity : AppCompatActivity() {
         private val REQUEST_READ_STORAGE_PERMISSION = 3
         private val REQUEST_WRITE_STORAGE_PERMISSION = 4
         private val REQUEST_APP_SETTINGS = 5
+        private val EXTRA_PERMISSION_ORIGIN = "permission_origin"
 
         companion object {
             public fun newInstance(): SettingsFragment {
@@ -221,8 +222,7 @@ public class MainActivity : AppCompatActivity() {
         }
 
         fun dispatchPickIntent() {
-            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_GRANTED) {
+            if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 val i = createPickIntent()
                 startActivityForResult(i, REQUEST_LOAD_IMAGE)
             } else {
@@ -244,7 +244,7 @@ public class MainActivity : AppCompatActivity() {
                             .autoDismiss(true)
                             .positiveText(R.string.permission_request_settings)
                             .onPositive { dialog, dialogAction ->
-                                goToSettings()
+                                goToSettings(REQUEST_READ_STORAGE_PERMISSION)
                             }
                             .show()
                 }
@@ -259,8 +259,7 @@ public class MainActivity : AppCompatActivity() {
          * @see createImageFile()
          */
         fun dispatchTakePictureIntent() {
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_GRANTED) {
+            if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 val takePictureIntent = createCameraIntent()
                 // Ensure that there's a camera activity to handle the intent
                 if (takePictureIntent != null) {
@@ -293,18 +292,20 @@ public class MainActivity : AppCompatActivity() {
                             .autoDismiss(true)
                             .positiveText(R.string.permission_request_settings)
                             .onPositive { dialog, dialogAction ->
-                                goToSettings()
+                                goToSettings(REQUEST_WRITE_STORAGE_PERMISSION)
                             }
                             .show()
                 }
             }
         }
 
-        private fun goToSettings() {
+        private fun goToSettings(extraRequestCode: Int) {
             val myAppSettings: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" +
                     activity.packageName));
             myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
             myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            val options: Bundle = Bundle(1);
+            options.putInt(EXTRA_PERMISSION_ORIGIN, extraRequestCode)
             startActivityForResult(myAppSettings, REQUEST_APP_SETTINGS);
         }
 
@@ -341,9 +342,23 @@ public class MainActivity : AppCompatActivity() {
                     Timber.d("Activity result - loading image from camera capture.")
                     intent.putExtra(PaletteDetailActivity.KEY_CAMERA, imagePath)
                     startActivity(intent);
+                } else if (requestCode == REQUEST_APP_SETTINGS) {
+                    // Check permissions again
+                    val originRequest = data?.getIntExtra(EXTRA_PERMISSION_ORIGIN, -1)
+                    if (originRequest == REQUEST_READ_STORAGE_PERMISSION && checkPermission(Manifest.permission
+                            .READ_EXTERNAL_STORAGE)) {
+                        dispatchPickIntent()
+                    } else if (originRequest == REQUEST_WRITE_STORAGE_PERMISSION && checkPermission(Manifest.permission
+                            .READ_EXTERNAL_STORAGE)) {
+                        dispatchTakePictureIntent()
+                    }
                 }
             }
         }
 
+        fun checkPermission(permissionName: String): Boolean {
+            return ActivityCompat.checkSelfPermission(
+                    activity, permissionName) == PackageManager.PERMISSION_GRANTED
+        }
     }
 }
