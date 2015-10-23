@@ -44,9 +44,9 @@ public class PaletteDetailActivity : AppCompatActivity() {
     var active = true;
 
     // Extension functions to Swatch to get hex values
-    public fun Swatch.rgbHex(): String = rgbToHex(getRgb())
-    public fun Swatch.titleHex(): String = rgbToHex(getTitleTextColor())
-    public fun Swatch.bodyHex(): String = rgbToHex(getBodyTextColor())
+    public fun Swatch.rgbHex(): String = rgbToHex(rgb)
+    public fun Swatch.titleHex(): String = rgbToHex(titleTextColor)
+    public fun Swatch.bodyHex(): String = rgbToHex(bodyTextColor)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,9 +59,9 @@ public class PaletteDetailActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
 
         Timber.d("Reading intent.")
-        val intent = getIntent()
-        val action = intent.getAction()
-        val type: String? = intent.getType()
+        val intent = intent
+        val action = intent.action
+        val type: String? = intent.type
         var imageUri: String? = null
         when {
             Intent.ACTION_SEND == action && type != null && type.startsWith("image/") -> {
@@ -104,12 +104,12 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     handler.removeCallbacks(runnable)
 
                     imageViewContainer.setOnClickListener {
-                        val photoIntent = Intent(this@PaletteDetailActivity, javaClass<PhotoActivity>())
+                        val photoIntent = Intent(this@PaletteDetailActivity, PhotoActivity::class.java)
                         photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
                         ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity).toBundle())
                     }
 
-                    if (dialog.isShowing()) {
+                    if (dialog.isShowing) {
                         dialog.dismiss()
                     }
                     if (PreferenceManager.getDefaultSharedPreferences(this@PaletteDetailActivity).getBoolean("pref_key_default", true)) {
@@ -121,7 +121,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                 }
 
                 override fun onLoadingFailed(imageUri: String?, view: View?, failReason: FailReason?) {
-                    Timber.e("Invalid imageUri: %s", failReason?.getType()?.name())
+                    Timber.e("Invalid imageUri: %s", failReason?.type?.name)
                     errorOut()
                 }
             });
@@ -186,18 +186,18 @@ public class PaletteDetailActivity : AppCompatActivity() {
                         generatePalette(bitmap, DEFAULT_NUM_COLORS)
                     }
 
-                    data inner class Result(val isValid: Boolean, val value: Int)
+                    inner class Result(val isValid: Boolean, val value: Int)
                     fun validateInput(): Result {
-                        val inputText: String = input.getText().toString()
+                        val inputText: String = input.text.toString()
                         try {
                             val number = java.lang.Integer.parseInt(inputText)
                             if (number < 1) {
-                                input.setError(getString(R.string.detail_must_be_greater_than_one))
+                                input.error = getString(R.string.detail_must_be_greater_than_one)
                                 return Result(false, -1)
                             }
                             return Result(true, number)
                         } catch (e: Exception) {
-                            input.setError(getString(R.string.detail_invalid_input))
+                            input.error = getString(R.string.detail_invalid_input)
                             return Result(false, -1)
                         }
                     }
@@ -221,21 +221,21 @@ public class PaletteDetailActivity : AppCompatActivity() {
         Timber.d("Generating palette")
         Palette.Builder(bitmap)
                 .generate({ palette ->
-                    Timber.d("Palette generation done with ${palette.getSwatches().size()} colors extracted of ${numColors} requested")
+                    Timber.d("Palette generation done with ${palette.swatches.size} colors extracted of $numColors requested")
                     val swatches = ArrayList(Arrays.asList<Swatch>(*arrayOf(
-                            palette.getVibrantSwatch(),
-                            palette.getMutedSwatch(),
-                            palette.getDarkVibrantSwatch(),
-                            palette.getDarkMutedSwatch(),
-                            palette.getLightVibrantSwatch(),
-                            palette.getLightMutedSwatch())
+                            palette.vibrantSwatch,
+                            palette.mutedSwatch,
+                            palette.darkVibrantSwatch,
+                            palette.darkMutedSwatch,
+                            palette.lightVibrantSwatch,
+                            palette.lightMutedSwatch)
                     ))
-                    swatches.addAll(palette.getSwatches())
+                    swatches.addAll(palette.swatches)
 
                     Timber.d("Setting up adapter with swatches")
                     val adapter = ResultsAdapter(swatches)
-                    gridView.setAdapter(adapter)
-                    gridView.setOnItemClickListener(adapter)
+                    gridView.adapter = adapter
+                    gridView.onItemClickListener = adapter
                 })
     }
 
@@ -247,14 +247,14 @@ public class PaletteDetailActivity : AppCompatActivity() {
     private inner class ResultsAdapter(private val swatches: List<Swatch>) : BaseAdapter(),
             AdapterView.OnItemClickListener, StickyGridHeadersSimpleAdapter {
 
-        private val swatchNames = getResources().getStringArray(R.array.swatches)
+        private val swatchNames = resources.getStringArray(R.array.swatches)
 
         override fun getCount(): Int {
-            return swatches.size()
+            return swatches.size
         }
 
         override fun getItem(position: Int): Swatch? {
-            return swatches.get(position)
+            return swatches[position]
         }
 
         override fun getItemId(position: Int): Long {
@@ -271,31 +271,31 @@ public class PaletteDetailActivity : AppCompatActivity() {
             var convertViewCopy = convertView
 
             if (convertViewCopy == null) {
-                convertViewCopy = getLayoutInflater().inflate(R.layout.swatch_cell, parent, false)
+                convertViewCopy = layoutInflater.inflate(R.layout.swatch_cell, parent, false)
                 holder = ViewHolder()
                 holder.text = convertViewCopy?.findViewById(R.id.hex) as TextView
-                convertViewCopy?.setTag(holder)
+                convertViewCopy?.tag = holder
             } else {
-                holder = convertViewCopy?.getTag() as ViewHolder
+                holder = convertViewCopy.tag as ViewHolder
             }
 
             if (swatch == null) {
-                holder.text?.setText(getString(R.string.detail_no_swatch, swatchNames[position]))
+                holder.text?.text = getString(R.string.detail_no_swatch, swatchNames[position])
                 holder.text?.setTextColor(Color.parseColor("#ADADAD"))
                 convertViewCopy?.setBackgroundColor(Color.parseColor("#252626"))
             } else {
-                var backgroundColor = swatch.getRgb()
+                var backgroundColor = swatch.rgb
                 if (backgroundColor == Color.TRANSPARENT) {
                     // Can't have transparent backgrounds apparently? I get crash reports for this
                     backgroundColor = Color.parseColor("#252626")
                 }
                 convertViewCopy?.setBackgroundColor(backgroundColor)
-                holder.text?.setTextColor(swatch.getTitleTextColor())
-                val hex = rgbToHex(swatch.getRgb())
+                holder.text?.setTextColor(swatch.titleTextColor)
+                val hex = rgbToHex(swatch.rgb)
                 if (position < 6) {
-                    holder.text?.setText("${swatchNames[position]}\n${hex}")
+                    holder.text?.text = "${swatchNames[position]}\n$hex"
                 } else {
-                    holder.text?.setText(hex)
+                    holder.text?.text = hex
                 }
             }
             return convertViewCopy as View
@@ -310,17 +310,17 @@ public class PaletteDetailActivity : AppCompatActivity() {
         }
 
         override fun getHeaderView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val textView = getLayoutInflater().inflate(R.layout.header_row, parent, false) as TextView
+            val textView = layoutInflater.inflate(R.layout.header_row, parent, false) as TextView
             textView.setBackgroundColor(Color.WHITE)
             textView.setTextColor(Color.BLACK)
-            textView.setGravity(Gravity.START)
+            textView.gravity = Gravity.START
             val text: String
             if (getHeaderId(position).toInt() == 0) {
                 text = getString(R.string.detail_primary_swatches)
             } else {
                 text = getString(R.string.detail_all_swatches)
             }
-            textView.setText(text)
+            textView.text = text
             return textView
         }
 
@@ -331,17 +331,17 @@ public class PaletteDetailActivity : AppCompatActivity() {
             if (swatch != null) {
                 Timber.d("Swatch wasn't null, building dialog")
                 MaterialDialog.Builder(this@PaletteDetailActivity)
-                        .theme(if (swatch.getHsl()[2] > 0.5f) Theme.LIGHT else Theme.DARK)
+                        .theme(if (swatch.hsl[2] > 0.5f) Theme.LIGHT else Theme.DARK)
                         .titleGravity(GravityEnum.CENTER)
-                        .titleColor(swatch.getTitleTextColor())
+                        .titleColor(swatch.titleTextColor)
                         .title(title)
-                        .backgroundColor(swatch.getRgb())
-                        .contentColor(swatch.getBodyTextColor())
+                        .backgroundColor(swatch.rgb)
+                        .contentColor(swatch.bodyTextColor)
                         .content(R.string.detail_lorem_full)
                         .positiveText(R.string.dialog_done)
-                        .positiveColor(swatch.getBodyTextColor())
+                        .positiveColor(swatch.bodyTextColor)
                         .neutralText(R.string.dialog_values)
-                        .neutralColor(swatch.getBodyTextColor())
+                        .neutralColor(swatch.bodyTextColor)
                         .callback(object : MaterialDialog.ButtonCallback() {
                             override fun onPositive(dialog: MaterialDialog) = dialog.dismiss()
                             override fun onNeutral(dialog: MaterialDialog) {
@@ -355,11 +355,11 @@ public class PaletteDetailActivity : AppCompatActivity() {
 
         private fun showValues(swatch: Swatch) {
             Timber.d("Showing values")
-            val items = getString(R.string.dialog_values_list, swatch.rgbHex(), swatch.titleHex(), swatch.bodyHex(), swatch.getHsl()[0], swatch.getHsl()[1], swatch.getHsl()[2], swatch.getPopulation()).splitBy("\n")
+            val items = getString(R.string.dialog_values_list, swatch.rgbHex(), swatch.titleHex(), swatch.bodyHex(), swatch.hsl[0], swatch.hsl[1], swatch.hsl[2], swatch.population).split("\n")
             MaterialDialog.Builder(this@PaletteDetailActivity)
-                    .theme(if (swatch.getHsl()[2] > 0.5f) Theme.LIGHT else Theme.DARK)
-                    .backgroundColor(swatch.getRgb())
-                    .contentColor(swatch.getBodyTextColor())
+                    .theme(if (swatch.hsl[2] > 0.5f) Theme.LIGHT else Theme.DARK)
+                    .backgroundColor(swatch.rgb)
+                    .contentColor(swatch.bodyTextColor)
                     .items(items.toTypedArray())
                     .itemsCallback(object : MaterialDialog.ListCallback {
                         override fun onSelection(dialog: MaterialDialog?, view: View?, position: Int, value: CharSequence?) {
@@ -367,17 +367,17 @@ public class PaletteDetailActivity : AppCompatActivity() {
                                 0 -> copyAndNotify(this@PaletteDetailActivity, swatch.rgbHex())
                                 1 -> copyAndNotify(this@PaletteDetailActivity, swatch.titleHex())
                                 2 -> copyAndNotify(this@PaletteDetailActivity, swatch.bodyHex())
-                                3 -> copyAndNotify(this@PaletteDetailActivity, swatch.getHsl()[0].toString())
-                                4 -> copyAndNotify(this@PaletteDetailActivity, swatch.getHsl()[1].toString())
-                                5 -> copyAndNotify(this@PaletteDetailActivity, swatch.getHsl()[2].toString())
-                                6 -> copyAndNotify(this@PaletteDetailActivity, swatch.getPopulation().toString())
+                                3 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[0].toString())
+                                4 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[1].toString())
+                                5 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[2].toString())
+                                6 -> copyAndNotify(this@PaletteDetailActivity, swatch.population.toString())
                             }
                             dialog?.dismiss()
                         }
                     })
                     .forceStacking(true)
                     .positiveText(R.string.dialog_copy_all)
-                    .positiveColor(swatch.getBodyTextColor())
+                    .positiveColor(swatch.bodyTextColor)
                     .callback(object : MaterialDialog.ButtonCallback() {
                         override fun onPositive(dialog: MaterialDialog) {
                             copyAndNotify(this@PaletteDetailActivity, swatch.toString())

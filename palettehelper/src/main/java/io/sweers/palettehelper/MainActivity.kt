@@ -33,7 +33,7 @@ public class MainActivity : AppCompatActivity() {
         Timber.d("Starting up MainActivity.")
         PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_ENTER, ANALYTICS_NAV_MAIN)
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().add(R.id.container, SettingsFragment.newInstance()).commit()
+            fragmentManager.beginTransaction().add(R.id.container, SettingsFragment.newInstance()).commit()
         }
     }
 
@@ -57,7 +57,7 @@ public class MainActivity : AppCompatActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             Timber.d("Starting up PreferenceFragment.")
-            setRetainInstance(true)
+            retainInstance = true
             addPreferencesFromResource(R.xml.main_activity_pref_screen)
 
             // Hide pick intent option if it's not possible. Should be rare though
@@ -76,8 +76,8 @@ public class MainActivity : AppCompatActivity() {
         }
 
         override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
-            Timber.d("Clicked preference ${preference.getKey()}")
-            when (preference.getKey()) {
+            Timber.d("Clicked preference ${preference.key}")
+            when (preference.key) {
                 "pref_key_open" -> {
                     PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_INTERNAL)
                     val i = createPickIntent()
@@ -91,16 +91,16 @@ public class MainActivity : AppCompatActivity() {
                 }
                 "pref_key_url" -> {
                     PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_MAIN, ANALYTICS_NAV_URL)
-                    val inputView = View.inflate(getActivity(), R.layout.basic_edittext_dialog, null);
+                    val inputView = View.inflate(activity, R.layout.basic_edittext_dialog, null);
                     val input = inputView.findViewById(R.id.et) as EditText
-                    val clipText = getClipData(getActivity())
+                    val clipText = getClipData(activity)
 
                     // If there's a URL in the clipboard, guess that that's what they want to retrieve and autofill
                     if (Patterns.WEB_URL.matcher(clipText).matches()) {
                         input.setText(clipText)
-                        input.setSelection(clipText.length())
+                        input.setSelection(clipText.length)
                     }
-                    MaterialDialog.Builder(getActivity())
+                    MaterialDialog.Builder(activity)
                             .title(R.string.main_open_url)
                             .customView(inputView, false)
                             .positiveText(R.string.dialog_done)
@@ -112,7 +112,7 @@ public class MainActivity : AppCompatActivity() {
                                     if (result.isValid) {
                                         dialog.dismiss()
                                         val intent = Intent(Intent.ACTION_SEND)
-                                        intent.setClass(getActivity(), javaClass<PaletteDetailActivity>())
+                                        intent.setClass(activity, PaletteDetailActivity::class.java)
                                         intent.putExtra(Intent.EXTRA_TEXT, result.value)
                                         startActivity(intent)
                                     }
@@ -122,13 +122,13 @@ public class MainActivity : AppCompatActivity() {
                                     dialog?.dismiss()
                                 }
 
-                                data inner class Result(val isValid: Boolean, val value: String)
+                                inner class Result(val isValid: Boolean, val value: String)
                                 fun validateInput(): Result {
-                                    val inputText: String = input.getText().toString().trim().replace(" ", "")
+                                    val inputText: String = input.text.toString().trim().replace(" ", "")
                                     if (Patterns.WEB_URL.matcher(inputText).matches()) {
                                         return Result(true, inputText)
                                     } else {
-                                        input.setError(getString(R.string.main_open_url_error))
+                                        input.error = getString(R.string.main_open_url_error)
                                         return Result(false, "")
                                     }
                                 }
@@ -137,7 +137,7 @@ public class MainActivity : AppCompatActivity() {
                     return true;
                 }
                 "pref_key_dev" -> {
-                    MaterialDialog.Builder(getActivity())
+                    MaterialDialog.Builder(activity)
                         .title(R.string.main_about)
                         .content(Html.fromHtml(getString(R.string.about_body)))
                         .positiveText(R.string.dialog_done)
@@ -145,9 +145,9 @@ public class MainActivity : AppCompatActivity() {
                     return true;
                 }
                 "pref_key_licenses" -> {
-                    val webView = WebView(getActivity());
+                    val webView = WebView(activity);
                     webView.loadUrl("file:///android_asset/licenses.html");
-                    MaterialDialog.Builder(getActivity())
+                    MaterialDialog.Builder(activity)
                             .title(R.string.main_licenses)
                             .customView(webView, false)
                             .positiveText(R.string.dialog_done)
@@ -184,7 +184,7 @@ public class MainActivity : AppCompatActivity() {
                     );
 
             // Save a file: path for use with ACTION_VIEW intents
-            imagePath = imageFile.getAbsolutePath();
+            imagePath = imageFile.absolutePath;
             return imageFile;
         }
 
@@ -196,7 +196,7 @@ public class MainActivity : AppCompatActivity() {
          */
         fun createPickIntent(): Intent? {
             val picImageIntent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            if (picImageIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            if (picImageIntent.resolveActivity(activity.packageManager) != null) {
                 return picImageIntent
             } else {
                 return null
@@ -212,7 +212,7 @@ public class MainActivity : AppCompatActivity() {
          */
         fun createCameraIntent(): Intent? {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            if (takePictureIntent.resolveActivity(activity.packageManager) != null) {
                 return takePictureIntent
             } else {
                 return null
@@ -247,15 +247,15 @@ public class MainActivity : AppCompatActivity() {
             Timber.d("Received activity result.")
 
             if (resultCode == Activity.RESULT_OK) {
-                val intent = Intent(getActivity(), javaClass<PaletteDetailActivity>())
+                val intent = Intent(activity, PaletteDetailActivity::class.java)
                 if (requestCode == REQUEST_LOAD_IMAGE && data != null) {
                     Timber.d("Activity result - loading image from internal storage.")
-                    val selectedImage = data.getData()
+                    val selectedImage = data.data
                     if (selectedImage != null) {
                         intent.putExtra(PaletteDetailActivity.KEY_URI, selectedImage.toString())
                         startActivity(intent)
                     } else {
-                        Toast.makeText(getActivity(), R.string.generic_error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(activity, R.string.generic_error, Toast.LENGTH_SHORT).show()
                     }
                 } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
                     Timber.d("Activity result - loading image from camera capture.")
