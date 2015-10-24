@@ -215,6 +215,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
     private fun generatePalette(bitmap: Bitmap, numColors: Int = 16) {
         Timber.d("Generating palette")
         Palette.Builder(bitmap)
+                .maximumColorCount(numColors)
                 .generate({ palette ->
                     Timber.d("Palette generation done with ${palette.swatches.size} colors extracted of $numColors requested")
                     val swatches = ArrayList(Arrays.asList<Swatch>(*arrayOf(
