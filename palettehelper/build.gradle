@@ -117,7 +117,7 @@ dependencies {
         transitive = true
     }
     compile 'com.bugsnag:bugsnag-android:3.2.6'
-    compile 'com.jakewharton.timber:timber:2.7.1'
+    compile 'com.jakewharton.timber:timber:4.1.0'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     compile "com.mixpanel.android:mixpanel-android:4.6.4"
     compile 'com.squareup.okhttp:okhttp:2.5.0'

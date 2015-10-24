@@ -12,8 +12,7 @@ import java.util.Deque
  *
  * Borrowed from here: https://github.com/JakeWharton/Telecine/blob/master/telecine/src/main/java/com/jakewharton/telecine/BugsnagTree.java
  */
-final class BugsnagTree: Timber.HollowTree() {
-
+final class BugsnagTree: Timber.Tree() {
     companion object {
         private val BUFFER_SIZE = 200
 
@@ -31,51 +30,23 @@ final class BugsnagTree: Timber.HollowTree() {
     // Adding one to the initial size accounts for the add before remove.
     private val buffer: Deque<String> = ArrayDeque(BUFFER_SIZE + 1)
 
-    override public fun d(message: String, vararg args: Any) {
-        logMessage(Log.DEBUG, message, args)
-    }
-    override public fun d(t: Throwable, message: String, vararg args: Any) {
-        logMessage(Log.DEBUG, message, args)
-    }
-    override public fun i(message: String, vararg args: Any) {
-        logMessage(Log.INFO, message, args)
-    }
-    override public fun i(t: Throwable, message: String, vararg args: Any) {
-        logMessage(Log.INFO, message, args)
-    }
-    override public fun w(message: String, vararg args: Any) {
-        logMessage(Log.WARN, message, args)
-    }
-    override public fun w(t: Throwable, message: String, vararg args: Any) {
-        logMessage(Log.WARN, message, args)
-    }
-    override public fun e(message: String, vararg args: Any) {
-        logMessage(Log.ERROR, message, args)
-    }
-    override public fun e(t: Throwable, message: String, vararg args: Any) {
-        logMessage(Log.ERROR, message, args)
-        Bugsnag.notify(t)
-    }
-
-    private fun logMessage(priority: Int, message: String, vararg args: Any) {
-        var messageCopy = message
-        if (args.size() > 0) {
-            messageCopy = java.lang.String.format(messageCopy, args)
-        }
-        messageCopy = "${System.currentTimeMillis()} ${priorityToString(priority)} ${messageCopy}"
+    override fun log(priority: Int, tag: String?, message: String?, t: Throwable?) {
+        var adjustedMessage = "${System.currentTimeMillis()} ${priorityToString(priority)} $message"
         synchronized (buffer) {
-            buffer.addLast(messageCopy)
-            if (buffer.size() > BUFFER_SIZE) {
-                buffer.removeFirst()
+            buffer.addLast(adjustedMessage);
+            if (buffer.size > BUFFER_SIZE) {
+                buffer.removeFirst();
             }
+        }
+        if (t != null && priority == Log.ERROR) {
+            Bugsnag.notify(t);
         }
     }
 
     public fun update(error: Error) {
         synchronized (buffer) {
-            var i = 1
-            for (message: String in buffer) {
-                error.addToTab("Log", java.lang.String.format("%03d", i++), message)
+            for ((i, message) in buffer.withIndex()) {
+                error.addToTab("Log", java.lang.String.format("%03d", i + 1), message);
             }
         }
     }
