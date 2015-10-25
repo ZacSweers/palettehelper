@@ -107,9 +107,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     handler.removeCallbacks(runnable)
 
                     imageViewContainer.setOnClickListener {
-                        val photoIntent = Intent(this@PaletteDetailActivity, PhotoActivity::class.java)
-                        photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
-                        ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity).toBundle())
+                        PhotoActivity.launch(this@PaletteDetailActivity, imageView, imageUri)
                     }
 
                     if (dialog.isShowing) {

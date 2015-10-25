@@ -21,7 +21,7 @@
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:contentDescription="@string/cd_detail_image"
-            android:transitionName="@string/transition_image"
+            android:transitionName="photo_hero"
             />
 
     </FrameLayout>
