@@ -227,23 +227,23 @@ public class MainActivity : AppCompatActivity() {
             } else {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     MaterialDialog.Builder(activity)
+                            .content(R.string.permission_request_settings_message)
+                            .autoDismiss(true)
+                            .positiveText(R.string.permission_request_settings)
+                            .onPositive { dialog, dialogAction ->
+                                goToSettings(REQUEST_READ_STORAGE_PERMISSION)
+                            }
+                            .show()
+                } else {
+                    MaterialDialog.Builder(activity)
                             .title(R.string.permission_request)
                             .content(R.string.permission_request_read_storage)
                             .autoDismiss(true)
                             .cancelable(false)
                             .positiveText(R.string.permission_request_next)
                             .onPositive { dialog, dialogAction ->
-                                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                                         REQUEST_READ_STORAGE_PERMISSION);
-                            }
-                            .show()
-                } else {
-                    MaterialDialog.Builder(activity)
-                            .content(R.string.permission_request_settings_message)
-                            .autoDismiss(true)
-                            .positiveText(R.string.permission_request_settings)
-                            .onPositive { dialog, dialogAction ->
-                                goToSettings(REQUEST_READ_STORAGE_PERMISSION)
                             }
                             .show()
                 }
@@ -275,18 +275,6 @@ public class MainActivity : AppCompatActivity() {
             } else {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     MaterialDialog.Builder(activity)
-                            .title(R.string.permission_request)
-                            .content(R.string.permission_request_write_storage)
-                            .autoDismiss(true)
-                            .cancelable(false)
-                            .positiveText(R.string.permission_request_next)
-                            .onPositive { dialog, dialogAction ->
-                                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                                        REQUEST_WRITE_STORAGE_PERMISSION);
-                            }
-                            .show()
-                } else {
-                    MaterialDialog.Builder(activity)
                             .content(R.string.permission_request_settings_message)
                             .autoDismiss(true)
                             .positiveText(R.string.permission_request_settings)
@@ -294,13 +282,25 @@ public class MainActivity : AppCompatActivity() {
                                 goToSettings(REQUEST_WRITE_STORAGE_PERMISSION)
                             }
                             .show()
+                } else {
+                    MaterialDialog.Builder(activity)
+                            .title(R.string.permission_request)
+                            .content(R.string.permission_request_write_storage)
+                            .autoDismiss(true)
+                            .cancelable(false)
+                            .positiveText(R.string.permission_request_next)
+                            .onPositive { dialog, dialogAction ->
+                                requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                                        REQUEST_WRITE_STORAGE_PERMISSION);
+                            }
+                            .show()
                 }
             }
         }
 
         private fun goToSettings(extraRequestCode: Int) {
-            val myAppSettings: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" +
-                    activity.packageName));
+            val myAppSettings: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package",
+                    activity.packageName, null));
             myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
             myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             val options: Bundle = Bundle(1);
