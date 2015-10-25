@@ -20,4 +20,12 @@
             @transition/change_image_transform</item>
 
     </style>
+
+    <style name="AppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#FFD3564B</item>
+        <item name="colorPrimaryDark">#ffb94b44</item>
+        <item name="colorAccent">#ff818ad5</item>
+
+    </style>
 </resources>

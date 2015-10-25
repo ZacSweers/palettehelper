@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -93,6 +94,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
         if (imageUri != null) {
             val dialog = MaterialDialog.Builder(this)
                     .content(R.string.detail_loading_image)
+                    .theme(Theme.LIGHT)
                     .progress(true, 0)
                     .build()
 
@@ -167,6 +169,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                 .negativeText(R.string.dialog_cancel)
                 .neutralText(R.string.dialog_default)
                 .autoDismiss(false)
+                .theme(Theme.LIGHT)
                 .onPositive { dialog, dialogAction ->
                     var isValid: Boolean
                     val inputText: String = input.text.toString()
@@ -227,6 +230,10 @@ public class PaletteDetailActivity : AppCompatActivity() {
                             palette.lightMutedSwatch)
                     ))
                     swatches.addAll(palette.swatches)
+
+                    if (palette.vibrantSwatch != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        window.statusBarColor = palette.vibrantSwatch.rgb
+                    }
 
                     Timber.d("Setting up adapter with swatches")
                     val adapter = ResultsAdapter(swatches)
