@@ -7,6 +7,7 @@ import com.bugsnag.android.Error
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import com.squareup.leakcanary.LeakCanary
 import com.squareup.okhttp.OkHttpClient
 import timber.log.Timber
 import kotlin.properties.Delegates
@@ -19,6 +20,8 @@ class PaletteHelperApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        LeakCanary.install(this);
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

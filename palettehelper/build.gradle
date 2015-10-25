@@ -106,9 +106,11 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "org.jetbrains.kotlin:kotlin-android-sdk-annotations:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'com.android.support:appcompat-v7:23.1.0'
-    compile 'com.android.support:palette-v7:23.1.0'
-    compile 'com.android.support:support-annotations:23.1.0'
+
+    def supportLibraryVersion = '23.1.0'
+    compile "com.android.support:appcompat-v7:$supportLibraryVersion"
+    compile "com.android.support:palette-v7:$supportLibraryVersion"
+    compile "com.android.support:support-annotations:$supportLibraryVersion"
     compile 'com.google.android.gms:play-services-analytics:8.1.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     compile 'com.tonicartos:stickygridheaders:1.0.1'
@@ -121,4 +123,8 @@ dependencies {
     compile "com.mixpanel.android:mixpanel-android:4.6.4"
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
+
+    def leakCanaryVersion = '1.4-SNAPSHOT'
+    debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
+    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
 }
