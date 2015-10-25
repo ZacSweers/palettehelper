@@ -6,14 +6,13 @@ import butterknife.bindView
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import uk.co.senab.photoview.PhotoView
-import kotlinx.android.synthetic.activity_photo.photo_view as photoView
 
 /**
  * Displays an image using the PhotoView library
  */
 class PhotoActivity: AppCompatActivity() {
 
-    val toolbar: PhotoView by bindView(R.id.photo_view)
+    val photoView: PhotoView by bindView(R.id.photo_view)
 
     companion object {
         val EXTRA_URI = "extra_uil_uri"
