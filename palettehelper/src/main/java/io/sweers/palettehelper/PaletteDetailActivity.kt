@@ -27,6 +27,7 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
+import io.sweers.rxpalette.generateAsync
 import timber.log.Timber
 import java.util.*
 
@@ -219,7 +220,8 @@ public class PaletteDetailActivity : AppCompatActivity() {
         Timber.d("Generating palette")
         Palette.Builder(bitmap)
                 .maximumColorCount(numColors)
-                .generate({ palette ->
+                .generateAsync()
+                .subscribe({ palette ->
                     Timber.d("Palette generation done with ${palette.swatches.size} colors extracted of $numColors requested")
                     val swatches = ArrayList(Arrays.asList<Swatch>(*arrayOf(
                             palette.vibrantSwatch,
