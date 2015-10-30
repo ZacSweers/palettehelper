@@ -11,6 +11,7 @@
     <string name="generic_error">Something went wrong, please try again.</string>
     <string name="url_input_hint">Enter URL</string>
     <string name="cd_detail_image">Source Image</string>
+    <string name="blurred_detail_image">Blurred Source Image</string>
     <string name="colors_prompt_info" tools:ignore="TypographyDashes">The higher the number, the longer it takes.\n\n– Contact images/avatars: optimal values are 24-32\n– Landscapes: optimal values are 8-16\n\nDefault is 16, which is good compromise and works well in most situations.</string>
     <string name="colors_prompt_hint">Enter a number</string>
     <string name="main_palette_category">Palette</string>

@@ -15,6 +15,10 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
 import android.support.v7.widget.Toolbar
+import android.support.v8.renderscript.Allocation
+import android.support.v8.renderscript.Element
+import android.support.v8.renderscript.RenderScript
+import android.support.v8.renderscript.ScriptIntrinsicBlur
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +31,10 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
-import io.sweers.rxpalette.generateAsync
+import io.sweers.rxpalette.RxPalette
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
 
@@ -36,6 +43,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
     val toolbar: Toolbar by bindView(R.id.toolbar)
     val imageViewContainer: FrameLayout by bindView(R.id.image_view_container)
     val imageView: ImageView by bindView(R.id.image_view)
+    val imageViewBackground: ImageView by bindView(R.id.image_view_background)
     val gridView: GridView by bindView(R.id.grid_view)
 
     companion object {
@@ -117,7 +125,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                         dialog.dismiss()
                     }
                     if (PreferenceManager.getDefaultSharedPreferences(this@PaletteDetailActivity).getBoolean("pref_key_default", true)) {
-                        generatePalette(loadedImage, DEFAULT_NUM_COLORS)
+                        display(loadedImage, DEFAULT_NUM_COLORS)
                     } else {
                         Timber.d("Prompting for number of colors first")
                         promptForNumColors(loadedImage)
@@ -199,7 +207,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                 }
                 .onNeutral { dialog, dialogAction ->
                     dialog.dismiss()
-                    generatePalette(bitmap, DEFAULT_NUM_COLORS)
+                    display(bitmap, DEFAULT_NUM_COLORS)
                 }
                 .cancelListener({dialog ->
                     dialog.dismiss()
@@ -209,19 +217,20 @@ public class PaletteDetailActivity : AppCompatActivity() {
     }
 
     /**
-     * This is where the actual generation happens. Once the library calls back with the generated
-     * palette, the gridview's list adapter is updated with the standard colors prefixed to a list
-     * of *all* the colors.
      *
-     * @param bitmap the image bitmap to feed into Palette
-     * @param numColors the number of colors to generate, defaulting to 16
      */
-    private fun generatePalette(bitmap: Bitmap, numColors: Int = 16) {
-        Timber.d("Generating palette")
-        Palette.Builder(bitmap)
-                .maximumColorCount(numColors)
-                .generateAsync()
-                .subscribe({ palette ->
+    private fun display(bitmap: Bitmap, numColors: Int = 16) {
+        Observable
+                .zip(generatePalette(bitmap, numColors), blur(bitmap),
+                        { palette, blurredBitmap -> DisplayData(palette, blurredBitmap) })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { displayData ->
+                    // Set blurred bitmap
+                    imageViewBackground.setImageBitmap(displayData.blurredBitmap)
+
+                    // Set up palette data
+                    val palette = displayData.palette
                     Timber.d("Palette generation done with ${palette.swatches.size} colors extracted of $numColors requested")
                     val swatches = ArrayList(Arrays.asList<Swatch>(*arrayOf(
                             palette.vibrantSwatch,
@@ -234,14 +243,93 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     swatches.addAll(palette.swatches)
 
                     if (palette.vibrantSwatch != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        window.statusBarColor = palette.vibrantSwatch.rgb
+                        window.statusBarColor = palette.darkMutedSwatch.rgb
                     }
 
                     Timber.d("Setting up adapter with swatches")
                     val adapter = ResultsAdapter(swatches)
                     gridView.adapter = adapter
                     gridView.onItemClickListener = adapter
-                })
+                }
+    }
+
+    private inner class DisplayData(palette: Palette, blurredBitmap: Bitmap) {
+        val palette = palette
+        val blurredBitmap = blurredBitmap
+    }
+
+    /**
+     * Blurring function that returns an observable of blurring a bitmap
+     */
+    private fun blur(srcBitmap: Bitmap): Observable<Bitmap> {
+        if (srcBitmap.width < 1 || srcBitmap.height < 1) {
+            // Bitmap exists but has no actual size, nothing to blur.
+            return Observable.empty();
+        }
+
+        var bitmap: Bitmap? = srcBitmap;
+        // simulate a larger blur radius by downscaling the input image, as high radii are computationally very heavy
+        bitmap = downscaleBitmap(bitmap, srcBitmap.width, srcBitmap.height, 250);
+        if (bitmap == null) {
+            return Observable.empty();
+        }
+        return Observable.create<Bitmap> { subscriber ->
+            val rs: RenderScript = RenderScript.create(this);
+            val input: Allocation = Allocation.createFromBitmap(
+                    rs,
+                    bitmap,
+                    Allocation.MipmapControl.MIPMAP_NONE,
+                    Allocation.USAGE_SCRIPT);
+
+            val output: Allocation = Allocation.createTyped(rs, input.type);
+            val script: ScriptIntrinsicBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+            script.setRadius(25f);
+            script.setInput(input);
+            script.forEach(output);
+            output.copyTo(bitmap);
+            subscriber.onNext(bitmap)
+        }
+    }
+
+    /**
+     * Consolidated downscale function for Bitmaps. Tiny bitmaps sometimes downscale to the point
+     * where they have a width or height less than 0, causing the whole process to barf. To avoid
+     * the mess, we wrap it in a try/catch.
+     *
+     * @param bitmap Source bitmap
+     * @param srcWidth Source width
+     * @param srcHeight Source height
+     * @param radius Initially requested blur radius
+     * @return Downscaled bitmap if it worked, null if cleanup on aisle 5
+     */
+    private fun downscaleBitmap(bitmap: Bitmap?, srcWidth: Int, srcHeight: Int, radius: Int): Bitmap? {
+        try {
+            val destWidth: Int = (25f / radius * srcWidth).toInt()
+            val destHeight: Int = (25f / radius * srcHeight).toInt()
+            if (destWidth < 1 || destHeight < 1) {
+                // Uh oh
+                return null;
+            }
+            return Bitmap.createScaledBitmap(bitmap, (25f / radius * srcWidth).toInt(), (25f / radius *
+                    srcHeight).toInt(), true);
+        } catch (e: RuntimeException) {
+            // (╯°□°）╯︵ ┻━┻
+            return null;
+        }
+    }
+
+    /**
+     * This is where the actual palette generation happens. Once the library calls back with the generated
+     * palette, the gridview's list adapter is updated with the standard colors prefixed to a list
+     * of *all* the colors.
+     *
+     * @param bitmap the image bitmap to feed into Palette
+     * @param numColors the number of colors to generate, defaulting to 16
+     */
+    private fun generatePalette(bitmap: Bitmap, numColors: Int = 16): Observable<Palette> {
+        return RxPalette.generate(
+                Palette.Builder(bitmap).maximumColorCount(numColors))
+                .doOnSubscribe { Timber.d("Generating palette") }
     }
 
     override fun onDestroy() {

@@ -10,8 +10,27 @@
         android:id="@+id/image_view_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxHeight="@dimen/max_image_height"
         android:foreground="?attr/selectableItemBackground"
         >
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:maxHeight="@dimen/max_image_height"
+            android:adjustViewBounds="true"
+            android:foreground="#33000000"
+            >
+
+            <ImageView
+                android:id="@+id/image_view_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/blurred_detail_image"
+                />
+
+        </FrameLayout>
 
         <ImageView
             android:id="@+id/image_view"

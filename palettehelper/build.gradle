@@ -43,6 +43,9 @@ android {
         versionCode 11
         versionName "1.3.0"
 
+        renderscriptTargetApi 23
+        renderscriptSupportModeEnabled true
+
         buildConfigField "String", "BUGSNAG_KEY", "\"${retrieveProp('BUGSNAG_KEY')}\""
         buildConfigField "String", "ANALYTICS_KEY", "\"${retrieveProp('ANALYTICS_KEY')}\""
     }
@@ -121,6 +124,7 @@ dependencies {
     compile 'com.jakewharton.timber:timber:4.1.0'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     compile 'io.sweers.rxpalette:rxpalette-kotlin:0.1.0'
+    compile 'io.reactivex:rxandroid:1.0.1'
     compile "com.mixpanel.android:mixpanel-android:4.6.4"
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
