@@ -3,8 +3,7 @@ package io.sweers.palettehelper
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import butterknife.bindView
-import com.nostra13.universalimageloader.core.ImageLoader
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import com.bumptech.glide.Glide
 import uk.co.senab.photoview.PhotoView
 
 /**
@@ -22,14 +21,12 @@ class PhotoActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo)
 
-        if (!ImageLoader.getInstance().isInited()) {
-            val config: ImageLoaderConfiguration = ImageLoaderConfiguration.Builder(getApplicationContext()).build();
-            ImageLoader.getInstance().init(config);
-        }
-
         val intent = getIntent()
         val uri = intent.getStringExtra(EXTRA_URI)
 
-        ImageLoader.getInstance().displayImage(uri, photoView);
+        Glide.with(this)
+                .load(uri)
+                .crossFade()
+                .into(photoView)
     }
 }

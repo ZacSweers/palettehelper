@@ -27,11 +27,13 @@ import butterknife.bindView
 import com.afollestad.materialdialogs.GravityEnum
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.Theme
-import com.nostra13.universalimageloader.core.ImageLoader
-import com.nostra13.universalimageloader.core.assist.FailReason
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable
+import com.bumptech.glide.load.resource.drawable.GlideDrawable
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
-import io.sweers.rxpalette.RxPalette
+import io.sweers.rxpalette.asObservable
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -111,32 +113,41 @@ public class PaletteDetailActivity : AppCompatActivity() {
             val handler = Handler(Looper.getMainLooper());
             handler.postDelayed(runnable, 500)  // Wait half a second before showing the dialog to avoid flashing effect if it loads fast
 
-            ImageLoader.getInstance().displayImage(imageUri, imageView, object : SimpleImageLoadingListener() {
-                override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
-                    handler.removeCallbacks(runnable)
+            Glide.with(this)
+                    .load(imageUri)
+                    .listener(object : RequestListener<String, GlideDrawable> {
+                        override fun onResourceReady(resource: GlideDrawable?, model: String?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
+                            val loadedImage = GlideBitmapDrawable::class.java.cast(resource).bitmap
+                            handler.removeCallbacks(runnable)
 
-                    imageViewContainer.setOnClickListener {
-                        val photoIntent = Intent(this@PaletteDetailActivity, PhotoActivity::class.java)
-                        photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
-                        ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity).toBundle())
-                    }
+                            imageViewContainer.setOnClickListener {
+                                val photoIntent = Intent(this@PaletteDetailActivity, PhotoActivity::class.java)
+                                photoIntent.putExtra(PhotoActivity.EXTRA_URI, imageUri)
+                                ActivityCompat.startActivity(this@PaletteDetailActivity, photoIntent, ActivityOptionsCompat.makeSceneTransitionAnimation(this@PaletteDetailActivity).toBundle())
+                            }
 
-                    if (dialog.isShowing) {
-                        dialog.dismiss()
-                    }
-                    if (PreferenceManager.getDefaultSharedPreferences(this@PaletteDetailActivity).getBoolean("pref_key_default", true)) {
-                        display(loadedImage, DEFAULT_NUM_COLORS)
-                    } else {
-                        Timber.d("Prompting for number of colors first")
-                        promptForNumColors(loadedImage)
-                    }
-                }
+                            if (dialog.isShowing) {
+                                dialog.dismiss()
+                            }
+                            if (PreferenceManager.getDefaultSharedPreferences(this@PaletteDetailActivity).getBoolean("pref_key_default", true)) {
+                                display(loadedImage, DEFAULT_NUM_COLORS)
+                            } else {
+                                Timber.d("Prompting for number of colors first")
+                                promptForNumColors(loadedImage)
+                            }
+                            return false
+                        }
 
-                override fun onLoadingFailed(imageUri: String?, view: View?, failReason: FailReason?) {
-                    Timber.e("Invalid imageUri: %s", failReason?.type?.name)
-                    errorOut()
-                }
-            });
+                        override fun onException(e: Exception?, model: String?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
+                            Timber.e("Invalid imageUri: %s", e?.message)
+                            errorOut()
+                            return false
+                        }
+
+                    })
+                    .fitCenter()
+                    .crossFade()
+                    .into(imageView)
         } else {
             Timber.e("Invalid imageUri")
             errorOut()
@@ -327,8 +338,9 @@ public class PaletteDetailActivity : AppCompatActivity() {
      * @param numColors the number of colors to generate, defaulting to 16
      */
     private fun generatePalette(bitmap: Bitmap, numColors: Int = 16): Observable<Palette> {
-        return RxPalette.generate(
-                Palette.Builder(bitmap).maximumColorCount(numColors))
+        return Palette.Builder(bitmap)
+                .maximumColorCount(numColors)
+                .asObservable()
                 .doOnSubscribe { Timber.d("Generating palette") }
     }
 
