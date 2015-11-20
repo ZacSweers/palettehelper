@@ -51,9 +51,9 @@ public class PaletteDetailActivity : AppCompatActivity() {
     companion object {
         val KEY_URI = "uri_path"
         val KEY_CAMERA = "camera"
+        val DEFAULT_NUM_COLORS = 16
     }
 
-    val DEFAULT_NUM_COLORS = 16
     var active = true;
 
     // Extension functions to Swatch to get hex values
@@ -264,10 +264,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                 }
     }
 
-    private inner class DisplayData(palette: Palette, blurredBitmap: Bitmap) {
-        val palette = palette
-        val blurredBitmap = blurredBitmap
-    }
+    data class DisplayData(val palette: Palette, val blurredBitmap: Bitmap)
 
     /**
      * Blurring function that returns an observable of blurring a bitmap
@@ -464,19 +461,17 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     .backgroundColor(swatch.rgb)
                     .contentColor(swatch.bodyTextColor)
                     .items(items.toTypedArray())
-                    .itemsCallback(object : MaterialDialog.ListCallback {
-                        override fun onSelection(dialog: MaterialDialog?, view: View?, position: Int, value: CharSequence?) {
-                            when (position) {
-                                0 -> copyAndNotify(this@PaletteDetailActivity, swatch.rgbHex())
-                                1 -> copyAndNotify(this@PaletteDetailActivity, swatch.titleHex())
-                                2 -> copyAndNotify(this@PaletteDetailActivity, swatch.bodyHex())
-                                3 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[0].toString())
-                                4 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[1].toString())
-                                5 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[2].toString())
-                                6 -> copyAndNotify(this@PaletteDetailActivity, swatch.population.toString())
-                            }
-                            dialog?.dismiss()
+                    .itemsCallback({ dialog, view, position, value ->
+                        when (position) {
+                            0 -> copyAndNotify(this@PaletteDetailActivity, swatch.rgbHex())
+                            1 -> copyAndNotify(this@PaletteDetailActivity, swatch.titleHex())
+                            2 -> copyAndNotify(this@PaletteDetailActivity, swatch.bodyHex())
+                            3 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[0].toString())
+                            4 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[1].toString())
+                            5 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[2].toString())
+                            6 -> copyAndNotify(this@PaletteDetailActivity, swatch.population.toString())
                         }
+                        dialog?.dismiss()
                     })
                     .forceStacking(true)
                     .positiveText(R.string.dialog_copy_all)
