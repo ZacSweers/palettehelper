@@ -1,8 +1,10 @@
 package io.sweers.palettehelper
 
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +13,7 @@ import android.os.Looper
 import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
@@ -28,7 +31,6 @@ import com.afollestad.materialdialogs.GravityEnum
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.Theme
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
@@ -40,6 +42,7 @@ import rx.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
 
+@Suppress("NOTHING_TO_INLINE")
 public class PaletteDetailActivity : AppCompatActivity() {
 
     val toolbar: Toolbar by bindView(R.id.toolbar)
@@ -55,11 +58,6 @@ public class PaletteDetailActivity : AppCompatActivity() {
     }
 
     var active = true;
-
-    // Extension functions to Swatch to get hex values
-    public fun Swatch.rgbHex(): String = rgbToHex(rgb)
-    public fun Swatch.titleHex(): String = rgbToHex(titleTextColor)
-    public fun Swatch.bodyHex(): String = rgbToHex(bodyTextColor)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +105,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     .content(R.string.detail_loading_image)
                     .theme(Theme.LIGHT)
                     .progress(true, 0)
+                    .cancelListener { finish() }
                     .build()
 
             val runnable: Runnable = Runnable { if (active) dialog.show() }
@@ -117,8 +116,12 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     .load(imageUri)
                     .listener(object : RequestListener<String, GlideDrawable> {
                         override fun onResourceReady(resource: GlideDrawable?, model: String?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
-                            val loadedImage = GlideBitmapDrawable::class.java.cast(resource).bitmap
                             handler.removeCallbacks(runnable)
+                            val loadedImage = getGlideBitmap(resource)
+                            if (loadedImage == null) {
+                                errorOut()
+                                return false
+                            }
 
                             imageViewContainer.setOnClickListener {
                                 val photoIntent = Intent(this@PaletteDetailActivity, PhotoActivity::class.java)
@@ -243,18 +246,42 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     // Set up palette data
                     val palette = displayData.palette
                     Timber.d("Palette generation done with ${palette.swatches.size} colors extracted of $numColors requested")
-                    val swatches = ArrayList(Arrays.asList<Swatch>(*arrayOf(
-                            palette.vibrantSwatch,
-                            palette.mutedSwatch,
-                            palette.darkVibrantSwatch,
-                            palette.darkMutedSwatch,
-                            palette.lightVibrantSwatch,
-                            palette.lightMutedSwatch)
-                    ))
+                    val swatches = ArrayList(palette.primarySwatches())
                     swatches.addAll(palette.swatches)
 
-                    if (palette.vibrantSwatch != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        window.statusBarColor = palette.darkMutedSwatch.rgb
+                    val isDark: Boolean
+                    val lightness = isDark(palette)
+                    if (lightness == Lightness.UNKNOWN) {
+                        isDark = isDark(bitmap, bitmap.width / 2, 0)
+                    } else {
+                        isDark = lightness == Lightness.DARK
+                    }
+
+                    if (!isDark) {
+                        // make back icon dark on light images
+                        toolbar.navigationIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        // color the status bar. Set a complementary dark color on L,
+                        // light or dark color on M (with matching status bar icons)
+                        var statusBarColor = window.statusBarColor
+                        val topColor = getMostPopulousSwatch(palette)
+                        if (topColor != null && (isDark || Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
+                            statusBarColor = scrimify(topColor.rgb, isDark, SCRIM_ADJUSTMENT)
+                            // set a light status bar on M+
+                            if (!isDark) {
+                                setLightStatusBar(imageViewContainer)
+                            }
+                        }
+
+                        if (statusBarColor != window.statusBarColor) {
+                            val statusBarColorAnim = ValueAnimator.ofArgb(window.statusBarColor, statusBarColor)
+                            statusBarColorAnim.addUpdateListener { animation -> window.statusBarColor = animation.animatedValue as Int }
+                            statusBarColorAnim.setDuration(1000)
+                            statusBarColorAnim.interpolator = FastOutSlowInInterpolator()
+                            statusBarColorAnim.start()
+                        }
                     }
 
                     Timber.d("Setting up adapter with swatches")
@@ -278,16 +305,15 @@ public class PaletteDetailActivity : AppCompatActivity() {
         var bitmap: Bitmap? = srcBitmap;
         // simulate a larger blur radius by downscaling the input image, as high radii are computationally very heavy
         bitmap = downscaleBitmap(bitmap, srcBitmap.width, srcBitmap.height, 250);
-        if (bitmap == null) {
-            return Observable.empty();
-        }
+        bitmap ?: return Observable.empty();
         return Observable.create<Bitmap> { subscriber ->
             val rs: RenderScript = RenderScript.create(this);
             val input: Allocation = Allocation.createFromBitmap(
                     rs,
                     bitmap,
                     Allocation.MipmapControl.MIPMAP_NONE,
-                    Allocation.USAGE_SCRIPT);
+                    Allocation.USAGE_SCRIPT
+            );
 
             val output: Allocation = Allocation.createTyped(rs, input.type);
             val script: ScriptIntrinsicBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
@@ -318,8 +344,12 @@ public class PaletteDetailActivity : AppCompatActivity() {
                 // Uh oh
                 return null;
             }
-            return Bitmap.createScaledBitmap(bitmap, (25f / radius * srcWidth).toInt(), (25f / radius *
-                    srcHeight).toInt(), true);
+            return Bitmap.createScaledBitmap(
+                    bitmap,
+                    (25f / radius * srcWidth).toInt(),
+                    (25f / radius * srcHeight).toInt(),
+                    true
+            );
         } catch (e: RuntimeException) {
             // (╯°□°）╯︵ ┻━┻
             return null;
@@ -336,6 +366,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
      */
     private fun generatePalette(bitmap: Bitmap, numColors: Int = 16): Observable<Palette> {
         return Palette.Builder(bitmap)
+                .clearFilters()
                 .maximumColorCount(numColors)
                 .asObservable()
                 .doOnSubscribe { Timber.d("Generating palette") }
@@ -433,7 +464,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
             if (swatch != null) {
                 Timber.d("Swatch wasn't null, building dialog")
                 MaterialDialog.Builder(this@PaletteDetailActivity)
-                        .theme(if (swatch.hsl[2] > 0.5f) Theme.LIGHT else Theme.DARK)
+                        .theme(if (swatch.isLightColor()) Theme.LIGHT else Theme.DARK)
                         .titleGravity(GravityEnum.CENTER)
                         .titleColor(swatch.titleTextColor)
                         .title(title)

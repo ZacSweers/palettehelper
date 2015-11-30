@@ -1,9 +1,7 @@
 package io.sweers.palettehelper
 
 import android.app.Application
-import com.bugsnag.android.BeforeNotify
 import com.bugsnag.android.Bugsnag
-import com.bugsnag.android.Error
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import com.squareup.leakcanary.LeakCanary
 import timber.log.Timber
@@ -28,11 +26,9 @@ class PaletteHelperApplication: Application() {
             Bugsnag.setProjectPackages("io.sweers.palettehelper")
 
             val tree = BugsnagTree()
-            Bugsnag.getClient().beforeNotify(object : BeforeNotify {
-                override fun run(error: Error): Boolean {
-                    tree.update(error)
-                    return true
-                }
+            Bugsnag.getClient().beforeNotify({ error ->
+                tree.update(error)
+                true
             })
 
             Timber.plant(tree)
