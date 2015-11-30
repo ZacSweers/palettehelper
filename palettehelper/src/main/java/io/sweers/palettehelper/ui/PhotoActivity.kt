@@ -1,9 +1,10 @@
-package io.sweers.palettehelper
+package io.sweers.palettehelper.ui
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import butterknife.bindView
 import com.bumptech.glide.Glide
+import io.sweers.palettehelper.R
 import uk.co.senab.photoview.PhotoView
 
 /**
@@ -21,7 +22,6 @@ class PhotoActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo)
 
-        val intent = getIntent()
         val uri = intent.getStringExtra(EXTRA_URI)
 
         Glide.with(this)

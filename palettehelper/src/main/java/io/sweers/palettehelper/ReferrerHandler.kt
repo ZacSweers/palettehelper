@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import io.sweers.palettehelper.util.ANALYTICS_KEY_PLAY_REFERRER
+import io.sweers.palettehelper.util.trackMisc
 import timber.log.Timber
 
 /**

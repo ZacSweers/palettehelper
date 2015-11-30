@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.sweers.palettehelper
+package io.sweers.palettehelper.util
 
 import android.graphics.Bitmap
 import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable

@@ -1,4 +1,4 @@
-package io.sweers.palettehelper
+package io.sweers.palettehelper.util
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import org.json.JSONObject

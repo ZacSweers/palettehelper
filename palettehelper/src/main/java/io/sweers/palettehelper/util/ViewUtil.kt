@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.sweers.palettehelper
+package io.sweers.palettehelper.util
 
 import android.os.Build
 import android.view.View

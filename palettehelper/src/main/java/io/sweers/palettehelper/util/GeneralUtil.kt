@@ -1,5 +1,7 @@
-package io.sweers.palettehelper
+package io.sweers.palettehelper.util
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 
@@ -12,8 +14,8 @@ public fun rgbToHex(color: Int): String = "#${Integer.toHexString(color)}"
  * Copies a given text to the clipboard
  */
 public fun copyToClipboard(context: Context, text: String) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-    val clip = android.content.ClipData.newPlainText("Copied Text", text)
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("Copied Text", text)
     clipboard.primaryClip = clip
 }
 
@@ -29,7 +31,7 @@ public fun copyAndNotify(context: Context, hex: String) {
  * Gets the current text on the clipboard, if any
  */
 public fun getClipData(context: Context) : CharSequence {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     var clip = clipboard.primaryClip?.getItemAt(0)?.coerceToText(context)
     if (clip == null) {
         clip = ""

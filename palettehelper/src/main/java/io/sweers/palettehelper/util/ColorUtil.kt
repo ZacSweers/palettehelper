@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.sweers.palettehelper
+package io.sweers.palettehelper.util
 
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -26,10 +26,12 @@ import android.support.v7.graphics.Palette
 import rx.Observable
 import rx.observables.MathObservable
 
+/**
+ * Converts a given color to a #xxxxxx string.
+ */
+public inline fun Int.hex(): String = "#${Integer.toHexString(this)}"
+
 // Extension functions to Swatch to get hex values
-public inline fun Palette.Swatch.rgbHex(): String = rgbToHex(rgb)
-public inline fun Palette.Swatch.titleHex(): String = rgbToHex(titleTextColor)
-public inline fun Palette.Swatch.bodyHex(): String = rgbToHex(bodyTextColor)
 public inline fun Palette.Swatch.isLightColor(): Boolean = hsl[2] > 0.5f
 public inline fun Palette.primarySwatches(): List<Palette.Swatch> {
     return arrayOf(
@@ -44,7 +46,7 @@ public inline fun Palette.primarySwatches(): List<Palette.Swatch> {
 public inline fun Palette.uniqueSwatches(): List<Palette.Swatch> {
     return Observable.from(swatches)
             .filter { it != null }
-            .distinct { it.rgbHex() }
+            .distinct { it.rgb.hex() }
             .toList().toBlocking().first();
 }
 

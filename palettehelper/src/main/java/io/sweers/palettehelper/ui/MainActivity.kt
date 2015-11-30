@@ -1,4 +1,4 @@
-package io.sweers.palettehelper
+package io.sweers.palettehelper.ui
 
 import android.Manifest
 import android.app.Activity
@@ -22,11 +22,15 @@ import android.webkit.WebView
 import android.widget.EditText
 import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
+import io.sweers.palettehelper.ui.PaletteDetailActivity
+import io.sweers.palettehelper.PaletteHelperApplication
+import io.sweers.palettehelper.R
+import io.sweers.palettehelper.util.*
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 import kotlin.properties.Delegates
 
 public class MainActivity : AppCompatActivity() {
@@ -196,7 +200,7 @@ public class MainActivity : AppCompatActivity() {
          * @return A prepared intent if found.
          */
         fun createPickIntent(): Intent? {
-            val picImageIntent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            val picImageIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             if (picImageIntent.resolveActivity(activity.packageManager) != null) {
                 return picImageIntent
             } else {

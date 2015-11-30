@@ -1,4 +1,4 @@
-package io.sweers.palettehelper
+package io.sweers.palettehelper.ui
 
 import android.animation.ValueAnimator
 import android.content.Intent
@@ -36,6 +36,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import io.sweers.palettehelper.PaletteHelperApplication
+import io.sweers.palettehelper.R
+import io.sweers.palettehelper.util.*
 import io.sweers.rxpalette.asObservable
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -76,7 +79,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
         val type: String? = intent.type
         var imageUri: String? = null
         when {
-            Intent.ACTION_SEND == action && type != null && type.startsWith("image/") -> {
+            Intent.ACTION_SEND == action && (type?.startsWith("image/") ?: false) -> {
                 Timber.d("Received via app share, trying to resolve uri")
                 PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_SHARE, ANALYTICS_NAV_DETAIL)
                 imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM).toString()
@@ -412,7 +415,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                         }
                         holder.itemView.setBackgroundColor(backgroundColor)
                         holder.text?.setTextColor(swatch.titleTextColor)
-                        val hex = rgbToHex(swatch.rgb)
+                        val hex = swatch.rgb.hex()
                         val adjustedPosition = getAdjustedSwatchPosition(position)
                         if (adjustedPosition < 6) {
                             holder.text?.text = "${swatchNames[adjustedPosition]}\n$hex"
@@ -477,7 +480,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
             val title = if (position < 6)  swatchNames[position] else getString(R.string.detail_lorem)
             Timber.d("Swatch wasn't null, building dialog")
             MaterialDialog.Builder(this@PaletteDetailActivity)
-                    .theme(if (swatch.isLightColor()) Theme.DARK else Theme.LIGHT)
+                    .theme(if (swatch.isLightColor()) Theme.LIGHT else Theme.DARK)
                     .titleGravity(GravityEnum.CENTER)
                     .titleColor(swatch.titleTextColor)
                     .title(title)
@@ -498,17 +501,26 @@ public class PaletteDetailActivity : AppCompatActivity() {
 
         private fun showValues(swatch: Swatch) {
             Timber.d("Showing values")
-            val items = getString(R.string.dialog_values_list, swatch.rgbHex(), swatch.titleHex(), swatch.bodyHex(), swatch.hsl[0], swatch.hsl[1], swatch.hsl[2], swatch.population).split("\n")
+            val items = getString(
+                    R.string.dialog_values_list,
+                    swatch.rgb.hex(),
+                    swatch.titleTextColor.hex(),
+                    swatch.bodyTextColor.hex(),
+                    swatch.hsl[0],
+                    swatch.hsl[1],
+                    swatch.hsl[2],
+                    swatch.population)
+                    .split("\n")
             MaterialDialog.Builder(this@PaletteDetailActivity)
-                    .theme(if (swatch.isLightColor()) Theme.DARK else Theme.LIGHT)
+                    .theme(if (swatch.isLightColor()) Theme.LIGHT else Theme.DARK)
                     .backgroundColor(swatch.rgb)
                     .contentColor(swatch.bodyTextColor)
                     .items(items.toTypedArray())
                     .itemsCallback({ dialog, view, position, value ->
                         when (position) {
-                            0 -> copyAndNotify(this@PaletteDetailActivity, swatch.rgbHex())
-                            1 -> copyAndNotify(this@PaletteDetailActivity, swatch.titleHex())
-                            2 -> copyAndNotify(this@PaletteDetailActivity, swatch.bodyHex())
+                            0 -> copyAndNotify(this@PaletteDetailActivity, swatch.rgb.hex())
+                            1 -> copyAndNotify(this@PaletteDetailActivity, swatch.titleTextColor.hex())
+                            2 -> copyAndNotify(this@PaletteDetailActivity, swatch.bodyTextColor.hex())
                             3 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[0].toString())
                             4 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[1].toString())
                             5 -> copyAndNotify(this@PaletteDetailActivity, swatch.hsl[2].toString())
@@ -528,7 +540,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
 
     }
 
-    inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         public var text: TextView? = null
     }
 }
