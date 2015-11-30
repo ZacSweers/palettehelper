@@ -41,6 +41,12 @@ public inline fun Palette.primarySwatches(): List<Palette.Swatch> {
             lightMutedSwatch
     ).asList()
 }
+public inline fun Palette.uniqueSwatches(): List<Palette.Swatch> {
+    return Observable.from(swatches)
+            .filter { it != null }
+            .distinct { it.rgbHex() }
+            .toList().toBlocking().first();
+}
 
 /**
  * Utility methods for working with colors.

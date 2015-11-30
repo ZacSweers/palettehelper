@@ -51,18 +51,14 @@
         android:layout_height="wrap_content"
         android:minHeight="?actionBarSize"
         android:background="@android:color/transparent"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
-        app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         />
 
-    <com.tonicartos.widget.stickygridheaders.StickyGridHeadersGridView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/grid_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="2"
-        android:dividerHeight="0dp"
-        android:drawSelectorOnTop="true"
-        android:listSelector="?attr/selectableItemBackground"
         android:overScrollMode="never"
         android:layout_below="@id/image_view_container"
         />

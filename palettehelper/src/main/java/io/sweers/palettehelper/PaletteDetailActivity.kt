@@ -17,6 +17,8 @@ import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.StaggeredGridLayoutManager
 import android.support.v7.widget.Toolbar
 import android.support.v8.renderscript.Allocation
 import android.support.v8.renderscript.Element
@@ -34,7 +36,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter
 import io.sweers.rxpalette.asObservable
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -49,7 +50,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
     val imageViewContainer: FrameLayout by bindView(R.id.image_view_container)
     val imageView: ImageView by bindView(R.id.image_view)
     val imageViewBackground: ImageView by bindView(R.id.image_view_background)
-    val gridView: GridView by bindView(R.id.grid_view)
+    val recyclerView: RecyclerView by bindView(R.id.grid_view)
 
     companion object {
         val KEY_URI = "uri_path"
@@ -210,7 +211,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                         isValid = false
                     }
                     if (isValid) {
-                        generatePalette(bitmap, number)
+                        display(bitmap, number)
                         dialog.dismiss()
                         PaletteHelperApplication.mixPanel.trackMisc(ANALYTICS_KEY_NUMCOLORS, number.toString())
                     }
@@ -247,7 +248,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     val palette = displayData.palette
                     Timber.d("Palette generation done with ${palette.swatches.size} colors extracted of $numColors requested")
                     val swatches = ArrayList(palette.primarySwatches())
-                    swatches.addAll(palette.swatches)
+                    swatches.addAll(palette.uniqueSwatches())
 
                     val isDark: Boolean
                     val lightness = isDark(palette)
@@ -285,9 +286,9 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     }
 
                     Timber.d("Setting up adapter with swatches")
+                    recyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
                     val adapter = ResultsAdapter(swatches)
-                    gridView.adapter = adapter
-                    gridView.onItemClickListener = adapter
+                    recyclerView.adapter = adapter
                 }
     }
 
@@ -377,16 +378,93 @@ public class PaletteDetailActivity : AppCompatActivity() {
         PaletteHelperApplication.mixPanel.flush()
     }
 
-    private inner class ResultsAdapter(private val swatches: List<Swatch>) : BaseAdapter(),
-            AdapterView.OnItemClickListener, StickyGridHeadersSimpleAdapter {
+    private inner class ResultsAdapter(private val swatches: List<Swatch>) : RecyclerView.Adapter<ViewHolder>() {
 
-        private val swatchNames = resources.getStringArray(R.array.swatches)
+        val VIEW_TYPE_HEADER = 0
+        val VIEW_TYPE_SWATCH = 1
 
-        override fun getCount(): Int {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            if (position == 0 || position == 7) {
+                // Header
+                val layoutParams: StaggeredGridLayoutManager.LayoutParams = holder.itemView.layoutParams as StaggeredGridLayoutManager.LayoutParams;
+                layoutParams.isFullSpan = true;
+                val text: String
+                if (position == 0) {
+                    text = getString(R.string.detail_primary_swatches)
+                } else {
+                    text = getString(R.string.detail_all_swatches)
+                }
+                (holder.itemView as TextView).text = text
+            } else {
+                if (position < swatches.size) {
+                    val swatch = getItem(getAdjustedSwatchPosition(position))
+                    if (swatch == null) {
+                        holder.text?.text = getString(R.string.detail_no_swatch, swatchNames[position])
+                        holder.text?.setTextColor(Color.parseColor("#ADADAD"))
+                        holder.itemView.setBackgroundColor(Color.parseColor("#252626"))
+                        holder.itemView.isEnabled = false
+                        holder.itemView.setOnClickListener(null)
+                    } else {
+                        var backgroundColor = swatch.rgb
+                        if (backgroundColor == Color.TRANSPARENT) {
+                            // Can't have transparent backgrounds apparently? I get crash reports for this
+                            backgroundColor = Color.parseColor("#252626")
+                        }
+                        holder.itemView.setBackgroundColor(backgroundColor)
+                        holder.text?.setTextColor(swatch.titleTextColor)
+                        val hex = rgbToHex(swatch.rgb)
+                        val adjustedPosition = getAdjustedSwatchPosition(position)
+                        if (adjustedPosition < 6) {
+                            holder.text?.text = "${swatchNames[adjustedPosition]}\n$hex"
+                        } else {
+                            holder.text?.text = hex
+                        }
+                        holder.itemView.isEnabled = true
+                        holder.itemView.setOnClickListener { v -> onItemClick(v, adjustedPosition, swatch) }
+                    }
+                    holder.itemView.visibility = View.VISIBLE
+                } else {
+                    holder.itemView.visibility = View.GONE
+                }
+            }
+        }
+
+        override fun getItemCount(): Int {
             return swatches.size
         }
 
-        override fun getItem(position: Int): Swatch? {
+        override fun getItemViewType(position: Int): Int {
+            if (position == 0 || position == 7) {
+                return VIEW_TYPE_HEADER
+            } else {
+                return VIEW_TYPE_SWATCH
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder? {
+            var holder: ViewHolder
+            if (viewType == VIEW_TYPE_HEADER) {
+                val textView = layoutInflater.inflate(R.layout.header_row, parent, false) as TextView
+                textView.gravity = Gravity.START
+                holder = ViewHolder(textView)
+            } else {
+                val view = layoutInflater.inflate(R.layout.swatch_cell, parent, false)
+                holder = ViewHolder(view)
+                holder.text = view.findViewById(R.id.hex) as TextView
+            }
+            return holder
+        }
+
+        private val swatchNames = resources.getStringArray(R.array.swatches)
+
+        private fun getAdjustedSwatchPosition(position: Int) : Int {
+            when {
+                position > 0 && position < 7 -> return position - 1
+                else -> return position - 2
+            }
+        }
+
+        fun getItem(position: Int): Swatch? {
             return swatches[position]
         }
 
@@ -394,101 +472,35 @@ public class PaletteDetailActivity : AppCompatActivity() {
             return position.toLong()
         }
 
-        override fun isEnabled(position: Int): Boolean {
-            return getItem(position) != null
-        }
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val swatch = getItem(position)
-            var holder: ViewHolder
-            var convertViewCopy = convertView
-
-            if (convertViewCopy == null) {
-                convertViewCopy = layoutInflater.inflate(R.layout.swatch_cell, parent, false)
-                holder = ViewHolder()
-                holder.text = convertViewCopy?.findViewById(R.id.hex) as TextView
-                convertViewCopy?.tag = holder
-            } else {
-                holder = convertViewCopy.tag as ViewHolder
-            }
-
-            if (swatch == null) {
-                holder.text?.text = getString(R.string.detail_no_swatch, swatchNames[position])
-                holder.text?.setTextColor(Color.parseColor("#ADADAD"))
-                convertViewCopy?.setBackgroundColor(Color.parseColor("#252626"))
-            } else {
-                var backgroundColor = swatch.rgb
-                if (backgroundColor == Color.TRANSPARENT) {
-                    // Can't have transparent backgrounds apparently? I get crash reports for this
-                    backgroundColor = Color.parseColor("#252626")
-                }
-                convertViewCopy?.setBackgroundColor(backgroundColor)
-                holder.text?.setTextColor(swatch.titleTextColor)
-                val hex = rgbToHex(swatch.rgb)
-                if (position < 6) {
-                    holder.text?.text = "${swatchNames[position]}\n$hex"
-                } else {
-                    holder.text?.text = hex
-                }
-            }
-            return convertViewCopy as View
-        }
-
-        override fun getHeaderId(position: Int): Long {
-            if (position < 6) {
-                return 0
-            } else {
-                return 1
-            }
-        }
-
-        override fun getHeaderView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val textView = layoutInflater.inflate(R.layout.header_row, parent, false) as TextView
-            textView.setBackgroundColor(Color.WHITE)
-            textView.setTextColor(Color.BLACK)
-            textView.gravity = Gravity.START
-            val text: String
-            if (getHeaderId(position).toInt() == 0) {
-                text = getString(R.string.detail_primary_swatches)
-            } else {
-                text = getString(R.string.detail_all_swatches)
-            }
-            textView.text = text
-            return textView
-        }
-
-        override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+        fun onItemClick(view: View, position: Int, swatch: Swatch) {
             Timber.d("Swatch item clicked")
-            val swatch = getItem(position)
             val title = if (position < 6)  swatchNames[position] else getString(R.string.detail_lorem)
-            if (swatch != null) {
-                Timber.d("Swatch wasn't null, building dialog")
-                MaterialDialog.Builder(this@PaletteDetailActivity)
-                        .theme(if (swatch.isLightColor()) Theme.LIGHT else Theme.DARK)
-                        .titleGravity(GravityEnum.CENTER)
-                        .titleColor(swatch.titleTextColor)
-                        .title(title)
-                        .backgroundColor(swatch.rgb)
-                        .contentColor(swatch.bodyTextColor)
-                        .content(R.string.detail_lorem_full)
-                        .positiveText(R.string.dialog_done)
-                        .positiveColor(swatch.bodyTextColor)
-                        .neutralText(R.string.dialog_values)
-                        .neutralColor(swatch.bodyTextColor)
-                        .onPositive { dialog, dialogAction -> dialog.dismiss() }
-                        .onNeutral { dialog, dialogAction ->
-                            dialog.dismiss()
-                            showValues(swatch)
-                        }
-                        .show()
-            }
+            Timber.d("Swatch wasn't null, building dialog")
+            MaterialDialog.Builder(this@PaletteDetailActivity)
+                    .theme(if (swatch.isLightColor()) Theme.DARK else Theme.LIGHT)
+                    .titleGravity(GravityEnum.CENTER)
+                    .titleColor(swatch.titleTextColor)
+                    .title(title)
+                    .backgroundColor(swatch.rgb)
+                    .contentColor(swatch.bodyTextColor)
+                    .content(R.string.detail_lorem_full)
+                    .positiveText(R.string.dialog_done)
+                    .positiveColor(swatch.bodyTextColor)
+                    .neutralText(R.string.dialog_values)
+                    .neutralColor(swatch.bodyTextColor)
+                    .onPositive { dialog, dialogAction -> dialog.dismiss() }
+                    .onNeutral { dialog, dialogAction ->
+                        dialog.dismiss()
+                        showValues(swatch)
+                    }
+                    .show()
         }
 
         private fun showValues(swatch: Swatch) {
             Timber.d("Showing values")
             val items = getString(R.string.dialog_values_list, swatch.rgbHex(), swatch.titleHex(), swatch.bodyHex(), swatch.hsl[0], swatch.hsl[1], swatch.hsl[2], swatch.population).split("\n")
             MaterialDialog.Builder(this@PaletteDetailActivity)
-                    .theme(if (swatch.hsl[2] > 0.5f) Theme.LIGHT else Theme.DARK)
+                    .theme(if (swatch.isLightColor()) Theme.DARK else Theme.LIGHT)
                     .backgroundColor(swatch.rgb)
                     .contentColor(swatch.bodyTextColor)
                     .items(items.toTypedArray())
@@ -514,8 +526,9 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     .show()
         }
 
-        inner class ViewHolder {
-            var text: TextView? = null
-        }
+    }
+
+    inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+        public var text: TextView? = null
     }
 }
