@@ -240,15 +240,15 @@ public class PaletteDetailActivity : AppCompatActivity() {
     private fun display(bitmap: Bitmap, numColors: Int = 16) {
         Observable
                 .zip(generatePalette(bitmap, numColors), blur(bitmap),
-                        { palette, blurredBitmap -> DisplayData(palette, blurredBitmap) })
+                        { palette, blurredBitmap -> Pair(palette, blurredBitmap) })
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { displayData ->
                     // Set blurred bitmap
-                    imageViewBackground.setImageBitmap(displayData.blurredBitmap)
+                    imageViewBackground.setImageBitmap(displayData.second)
 
                     // Set up palette data
-                    val palette = displayData.palette
+                    val palette = displayData.first
                     Timber.d("Palette generation done with ${palette.swatches.size} colors extracted of $numColors requested")
                     val swatches = ArrayList(palette.primarySwatches())
                     swatches.addAll(palette.uniqueSwatches())
@@ -294,8 +294,6 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     recyclerView.adapter = adapter
                 }
     }
-
-    data class DisplayData(val palette: Palette, val blurredBitmap: Bitmap)
 
     /**
      * Blurring function that returns an observable of blurring a bitmap
