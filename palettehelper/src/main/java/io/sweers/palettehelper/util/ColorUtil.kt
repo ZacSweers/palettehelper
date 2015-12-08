@@ -152,13 +152,13 @@ fun isDark(@ColorInt color: Int): Boolean {
 
  * @param color the color to adjust
  * @param isDark whether `color` is light or dark
- * @param lightnessMultiplier the amount to modify the color e.g. 0.1f will alter it by 10%
+ * @param lightnessMultiplierInput the amount to modify the color e.g. 0.1f will alter it by 10%
  * @return the adjusted color
  */
 @ColorInt fun scrimify(@ColorInt color: Int,
                        isDark: Boolean,
-                       @FloatRange(from = 0.0, to = 1.0) lightnessMultiplier: Float): Int {
-    var lightnessMultiplier = lightnessMultiplier
+                       @FloatRange(from = 0.0, to = 1.0) lightnessMultiplierInput: Float): Int {
+    var lightnessMultiplier = lightnessMultiplierInput
     val hsl = FloatArray(3)
     ColorUtils.colorToHSL(color, hsl)
 
