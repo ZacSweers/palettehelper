@@ -126,7 +126,7 @@ dependencies {
     compile 'com.jakewharton.timber:timber:4.1.0'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     compile 'io.sweers.rxpalette:rxpalette-kotlin:0.2.0'
-    compile 'io.reactivex:rxandroid:1.0.1'
+    compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava-math:1.0.0'
     compile "com.mixpanel.android:mixpanel-android:4.7.0"
     compile 'com.squareup.okhttp:okhttp:2.6.0'
