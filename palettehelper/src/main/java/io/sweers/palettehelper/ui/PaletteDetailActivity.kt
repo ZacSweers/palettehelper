@@ -400,7 +400,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                 if (position < swatches.size) {
                     val swatch = getItem(getAdjustedSwatchPosition(position))
                     if (swatch == null) {
-                        holder.text?.text = getString(R.string.detail_no_swatch, swatchNames[position])
+                        holder.text?.text = getString(R.string.detail_no_swatch, swatchNames[getAdjustedSwatchPosition(position)])
                         holder.text?.setTextColor(Color.parseColor("#ADADAD"))
                         holder.itemView.setBackgroundColor(Color.parseColor("#252626"))
                         holder.itemView.isEnabled = false

@@ -46,7 +46,7 @@ public inline fun Palette.primarySwatches(): List<Palette.Swatch> {
 public inline fun Palette.uniqueSwatches(): List<Palette.Swatch> {
     return Observable.from(swatches)
             .filter { it != null }
-            .distinct { it.rgb.hex() }
+            .distinct { it.toString() }
             .toList().toBlocking().first();
 }
 
