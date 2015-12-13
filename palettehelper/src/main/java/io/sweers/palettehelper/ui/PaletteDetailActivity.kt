@@ -513,7 +513,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                     .theme(if (swatch.isLightColor()) Theme.LIGHT else Theme.DARK)
                     .backgroundColor(swatch.rgb)
                     .contentColor(swatch.bodyTextColor)
-                    .items(items.toTypedArray())
+                    .items(items[0], items[1], items[2], items[3], items[4], items[5], items[6])    // Because wtf kotlin
                     .itemsCallback({ dialog, view, position, value ->
                         when (position) {
                             0 -> copyAndNotify(this@PaletteDetailActivity, swatch.rgb.hex())
