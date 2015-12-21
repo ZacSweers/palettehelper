@@ -36,9 +36,7 @@ public class ReferrerHandler: BroadcastReceiver() {
             Timber.e(Exception(), "Referral info is null")
         }
 
-        val queryUri = Uri.parse(referralInfo)
-
-        if (queryUri != null) {
+        Uri.parse(referralInfo)?.let { queryUri ->
             Timber.d("Params are: ${queryUri.toString()}")
             var params = queryUri.getQueryParameterNames()
             logParamIfValid(params, queryUri, KEY_CAMPAIGN)

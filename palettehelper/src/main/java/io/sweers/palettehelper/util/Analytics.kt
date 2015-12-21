@@ -16,14 +16,12 @@ val ANALYTICS_KEY_NUMCOLORS = "Number of colors"
 val ANALYTICS_KEY_PLAY_REFERRER = "Google Play install referrer"
 
 public fun MixpanelAPI.trackNav(src: String, dest: String) {
-    val props: JSONObject = JSONObject();
-    props.put(ANALYTICS_NAV_SOURCE, src);
-    props.put(ANALYTICS_NAV_DESTINATION, dest);
-    track("Navigation", props);
+    val props: JSONObject = JSONObject()
+            .put(ANALYTICS_NAV_SOURCE, src)
+            .put(ANALYTICS_NAV_DESTINATION, dest)
+    track("Navigation", props)
 }
 
 public fun MixpanelAPI.trackMisc(key: String, value: String) {
-    val props: JSONObject = JSONObject();
-    props.put(key, value);
-    track("Misc", props);
+    track("Misc", JSONObject().put(key, value))
 }

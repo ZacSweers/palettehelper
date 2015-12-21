@@ -24,7 +24,7 @@ public fun copyToClipboard(context: Context, text: String) {
  */
 public fun copyAndNotify(context: Context, hex: String) {
     copyToClipboard(context, hex)
-    Toast.makeText(context, "Copied $hex to clipboard", Toast.LENGTH_SHORT).show();
+    Toast.makeText(context, "Copied $hex to clipboard", Toast.LENGTH_SHORT).show()
 }
 
 /**

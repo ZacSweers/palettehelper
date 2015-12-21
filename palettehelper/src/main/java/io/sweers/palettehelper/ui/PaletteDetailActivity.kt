@@ -280,11 +280,12 @@ public class PaletteDetailActivity : AppCompatActivity() {
                         }
 
                         if (statusBarColor != window.statusBarColor) {
-                            val statusBarColorAnim = ValueAnimator.ofArgb(window.statusBarColor, statusBarColor)
-                            statusBarColorAnim.addUpdateListener { animation -> window.statusBarColor = animation.animatedValue as Int }
-                            statusBarColorAnim.setDuration(1000)
-                            statusBarColorAnim.interpolator = FastOutSlowInInterpolator()
-                            statusBarColorAnim.start()
+                            ValueAnimator.ofArgb(window.statusBarColor, statusBarColor).apply {
+                                addUpdateListener { animation -> window.statusBarColor = animation.animatedValue as Int }
+                                setDuration(1000)
+                                interpolator = FastOutSlowInInterpolator()
+                                start()
+                            }
                         }
                     }
 
@@ -307,22 +308,23 @@ public class PaletteDetailActivity : AppCompatActivity() {
         var bitmap: Bitmap? = srcBitmap;
         // simulate a larger blur radius by downscaling the input image, as high radii are computationally very heavy
         bitmap = downscaleBitmap(bitmap, srcBitmap.width, srcBitmap.height, 250);
-        bitmap ?: return Observable.empty();
+        bitmap ?: return Observable.empty()
         return Observable.create<Bitmap> { subscriber ->
-            val rs: RenderScript = RenderScript.create(this);
+            val rs: RenderScript = RenderScript.create(this)
             val input: Allocation = Allocation.createFromBitmap(
                     rs,
                     bitmap,
                     Allocation.MipmapControl.MIPMAP_NONE,
                     Allocation.USAGE_SCRIPT
-            );
+            )
 
-            val output: Allocation = Allocation.createTyped(rs, input.type);
-            val script: ScriptIntrinsicBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-            script.setRadius(25f);
-            script.setInput(input);
-            script.forEach(output);
-            output.copyTo(bitmap);
+            val output: Allocation = Allocation.createTyped(rs, input.type)
+            ScriptIntrinsicBlur.create(rs, Element.U8_4(rs)).apply {
+                setRadius(25f)
+                setInput(input)
+                forEach(output)
+            }
+            output.copyTo(bitmap)
             subscriber.onNext(bitmap)
         }
     }
@@ -375,8 +377,8 @@ public class PaletteDetailActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         PaletteHelperApplication.mixPanel.flush()
+        super.onDestroy()
     }
 
     private inner class ResultsAdapter(private val swatches: List<Swatch>) : RecyclerView.Adapter<ViewHolder>() {
@@ -421,7 +423,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                             holder.text?.text = hex
                         }
                         holder.itemView.isEnabled = true
-                        holder.itemView.setOnClickListener { v -> onItemClick(v, adjustedPosition, swatch) }
+                        holder.itemView.setOnClickListener { v -> onItemClick(adjustedPosition, swatch) }
                     }
                     holder.itemView.visibility = View.VISIBLE
                 } else {
@@ -473,10 +475,9 @@ public class PaletteDetailActivity : AppCompatActivity() {
             return position.toLong()
         }
 
-        fun onItemClick(view: View, position: Int, swatch: Swatch) {
+        fun onItemClick(position: Int, swatch: Swatch) {
             Timber.d("Swatch item clicked")
             val title = if (position < 6)  swatchNames[position] else getString(R.string.detail_lorem)
-            Timber.d("Swatch wasn't null, building dialog")
             MaterialDialog.Builder(this@PaletteDetailActivity)
                     .theme(if (swatch.isLightColor()) Theme.LIGHT else Theme.DARK)
                     .titleGravity(GravityEnum.CENTER)
