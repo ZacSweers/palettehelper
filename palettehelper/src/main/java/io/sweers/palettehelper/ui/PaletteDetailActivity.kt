@@ -19,11 +19,11 @@ import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Palette.Swatch
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
-import android.support.v7.widget.Toolbar
 import android.support.v8.renderscript.Allocation
 import android.support.v8.renderscript.Element
 import android.support.v8.renderscript.RenderScript
 import android.support.v8.renderscript.ScriptIntrinsicBlur
+import android.util.Pair
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +38,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import io.sweers.palettehelper.PaletteHelperApplication
 import io.sweers.palettehelper.R
+import io.sweers.palettehelper.ui.widget.ElasticDragDismissFrameLayout
 import io.sweers.palettehelper.util.*
 import io.sweers.rxpalette.asObservable
 import rx.Observable
@@ -49,7 +50,8 @@ import java.util.*
 @Suppress("NOTHING_TO_INLINE")
 public class PaletteDetailActivity : AppCompatActivity() {
 
-    val toolbar: Toolbar by bindView(R.id.toolbar)
+    val draggableFrame: ElasticDragDismissFrameLayout by bindView(R.id.draggable_frame)
+    val backButton: ImageView by bindView(R.id.back)
     val imageViewContainer: FrameLayout by bindView(R.id.image_view_container)
     val imageView: ImageView by bindView(R.id.image_view)
     val imageViewBackground: ImageView by bindView(R.id.image_view_background)
@@ -70,8 +72,14 @@ public class PaletteDetailActivity : AppCompatActivity() {
         Timber.d("Starting up DetailActivity")
         PaletteHelperApplication.mixPanel.trackNav(ANALYTICS_NAV_ENTER, ANALYTICS_NAV_DETAIL)
 
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha)
-        toolbar.setNavigationOnClickListener { finish() }
+        backButton.setOnClickListener { finish() }
+        backButton.setBackgroundDrawable(createColorSelector(Color.WHITE))
+
+        draggableFrame.addListener(object: ElasticDragDismissFrameLayout.SystemChromeFader(window) {
+            override fun onDragDismissed() {
+                this@PaletteDetailActivity.finish()
+            }
+        })
 
         Timber.d("Reading intent.")
         val intent = intent
@@ -263,7 +271,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
 
                     if (!isDark) {
                         // make back icon dark on light images
-                        toolbar.navigationIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
+                        backButton.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

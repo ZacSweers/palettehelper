@@ -16,8 +16,14 @@
 
 package io.sweers.palettehelper.util
 
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.StateListDrawable
+import android.os.Build
 import android.support.annotation.ColorInt
 import android.support.annotation.FloatRange
 import android.support.annotation.IntRange
@@ -176,4 +182,32 @@ fun scrimify(@ColorInt color: Int,
 
 fun constrain(min: Float, max: Float, v: Float): Float {
     return Math.max(min, Math.min(max, v))
+}
+
+/**
+ * Creates a selector drawable that is API-aware. This will create a ripple for Lollipop+ and
+ * supports masks. If this is pre-lollipop and no mask is provided, it will fall back to a simple
+ * {@link StateListDrawable} with the color as its pressed and focused states.
+ *
+ * @param color Selector color
+ * @param mask Mask drawable for ripples to be bound to
+ * @return The drawable if successful, or null if not valid for this case (masked on pre-lollipop)
+ */
+@JvmOverloads
+public fun createColorSelector(@ColorInt color: Int, mask: Drawable? = null): Drawable? {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        return RippleDrawable(ColorStateList.valueOf(color), null, mask);
+    } else if (mask == null) {
+        val colorDrawable: ColorDrawable = ColorDrawable(color);
+        val statefulDrawable: StateListDrawable = StateListDrawable();
+        statefulDrawable.setEnterFadeDuration(200);
+        statefulDrawable.setExitFadeDuration(200);
+        statefulDrawable.addState(intArrayOf(android.R.attr.state_pressed), colorDrawable);
+        statefulDrawable.addState(intArrayOf(android.R.attr.state_focused), colorDrawable);
+        statefulDrawable.addState(intArrayOf(), null);
+        return statefulDrawable;
+    } else {
+        // We don't do it on pre-lollipop because normally selectors can't abide by a mask
+        return null;
+    }
 }
