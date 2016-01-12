@@ -20,10 +20,11 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
@@ -118,7 +119,7 @@ public class ElasticDragDismissFrameLayout extends FrameLayout {
 
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        return (nestedScrollAxes & View.SCROLL_AXIS_VERTICAL) != 0;
+        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
@@ -146,8 +147,7 @@ public class ElasticDragDismissFrameLayout extends FrameLayout {
                     .scaleX(1f)
                     .scaleY(1f)
                     .setDuration(200L)
-                    .setInterpolator(AnimationUtils.loadInterpolator(getContext(), android.R
-                            .interpolator.fast_out_slow_in))
+                    .setInterpolator(new FastOutSlowInInterpolator())
                     .setListener(null)
                     .start();
             totalDrag = 0;
