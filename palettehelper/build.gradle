@@ -135,7 +135,7 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava-math:1.0.0'
     compile "com.mixpanel.android:mixpanel-android:4.7.0"
-    compile 'com.squareup.okhttp:okhttp:2.7.0'
+    compile 'com.squareup.okhttp:okhttp:2.7.2'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
 
     def barberVersion = '1.4.0-SNAPSHOT'
