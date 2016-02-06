@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.0.0-beta-4589'
+    ext.kotlin_version = '1.0.0-rc-1036'
     repositories {
         mavenCentral()
     }
@@ -123,26 +123,26 @@ dependencies {
     compile "com.google.android.gms:play-services-base:$playServicesVersion"
     compile "com.google.android.gms:play-services-gcm:$playServicesVersion"
 
-    compile 'com.github.bumptech.glide:glide:3.6.1'
-    compile 'com.github.bumptech.glide:okhttp-integration:1.3.1@aar'
-    compile('com.github.afollestad.material-dialogs:core:0.8.5.3@aar') {
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
+    compile('com.github.afollestad.material-dialogs:core:0.8.5.4@aar') {
         transitive = true
     }
     compile 'com.bugsnag:bugsnag-android:3.3.0'
     compile 'com.jakewharton.timber:timber:4.1.0'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
-    compile 'io.sweers.rxpalette:rxpalette-kotlin:0.2.0'
+    compile 'io.sweers.rxpalette:rxpalette-kotlin:0.3.0'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava-math:1.0.0'
     compile "com.mixpanel.android:mixpanel-android:4.7.0"
-    compile 'com.squareup.okhttp:okhttp:2.7.2'
+    compile 'com.squareup.okhttp3:okhttp:3.0.1'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
 
     def barberVersion = '1.4.0-SNAPSHOT'
     apt "io.sweers.barber:barber-compiler:$barberVersion"
     compile "io.sweers.barber:barber-api:$barberVersion"
 
-    def leakCanaryVersion = '1.4-SNAPSHOT'
+    def leakCanaryVersion = '1.4-beta1'
     debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
 }

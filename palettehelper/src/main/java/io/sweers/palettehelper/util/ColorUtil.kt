@@ -36,11 +36,11 @@ import rx.observables.MathObservable
 /**
  * Converts a given color to a #xxxxxx string.
  */
-public inline fun Int.hex(): String = "#${Integer.toHexString(this)}"
+inline fun Int.hex(): String = "#${Integer.toHexString(this)}"
 
 // Extension functions to Swatch to get hex values
-public inline fun Palette.Swatch.isLightColor(): Boolean = hsl[2] > 0.5f
-public inline fun Palette.primarySwatches(): List<Palette.Swatch> {
+inline fun Palette.Swatch.isLightColor(): Boolean = hsl[2] > 0.5f
+inline fun Palette.primarySwatches(): List<Palette.Swatch?> {
     return arrayOf(
             vibrantSwatch,
             mutedSwatch,
@@ -50,14 +50,14 @@ public inline fun Palette.primarySwatches(): List<Palette.Swatch> {
             lightMutedSwatch
     ).asList()
 }
-public inline fun Palette.uniqueSwatches(): List<Palette.Swatch> {
+inline fun Palette.uniqueSwatches(): List<Palette.Swatch> {
     return Observable.from(swatches)
             .filter { it != null }
             .distinct { it.toString() }
             .toList().toBlocking().first()
 }
 
-public enum class Lightness {
+enum class Lightness {
     LIGHT, DARK, UNKNOWN
 }
 
@@ -110,7 +110,7 @@ fun getMostPopulousSwatch(palette: Palette?): Palette.Swatch? {
     palette?.primarySwatches()?.let { primarySwatches ->
         return MathObservable.from(Observable.from(primarySwatches)
                 .filter { it != null })
-                .max { thisSwatch, thatSwatch -> thisSwatch.population.compareTo(thatSwatch.population) }
+                .max { thisSwatch, thatSwatch -> thisSwatch!!.population.compareTo(thatSwatch!!.population) }
                 .toBlocking().first()
     }
     return null
@@ -194,7 +194,7 @@ fun constrain(min: Float, max: Float, v: Float): Float {
  * @return The drawable if successful, or null if not valid for this case (masked on pre-lollipop)
  */
 @JvmOverloads
-public fun createColorSelector(@ColorInt color: Int, mask: Drawable? = null): Drawable? {
+fun createColorSelector(@ColorInt color: Int, mask: Drawable? = null): Drawable? {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         return RippleDrawable(ColorStateList.valueOf(color), null, mask);
     } else if (mask == null) {

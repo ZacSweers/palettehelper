@@ -48,7 +48,7 @@ import timber.log.Timber
 import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
-public class PaletteDetailActivity : AppCompatActivity() {
+class PaletteDetailActivity : AppCompatActivity() {
 
     val draggableFrame: ElasticDragDismissFrameLayout by bindView(R.id.draggable_frame)
     val backButton: ImageView by bindView(R.id.back)
@@ -290,7 +290,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
                         if (statusBarColor != window.statusBarColor) {
                             ValueAnimator.ofArgb(window.statusBarColor, statusBarColor).apply {
                                 addUpdateListener { animation -> window.statusBarColor = animation.animatedValue as Int }
-                                setDuration(1000)
+                                duration = 1000
                                 interpolator = FastOutSlowInInterpolator()
                                 start()
                             }
@@ -389,7 +389,7 @@ public class PaletteDetailActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private inner class ResultsAdapter(private val swatches: List<Swatch>) : RecyclerView.Adapter<ViewHolder>() {
+    private inner class ResultsAdapter(private val swatches: List<Swatch?>) : RecyclerView.Adapter<ViewHolder>() {
 
         val VIEW_TYPE_HEADER = 0
         val VIEW_TYPE_SWATCH = 1
@@ -548,6 +548,6 @@ public class PaletteDetailActivity : AppCompatActivity() {
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        public var text: TextView? = null
+        var text: TextView? = null
     }
 }
