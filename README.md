@@ -2,8 +2,10 @@
 
 <a href='https://play.google.com/store/apps/details?id=io.sweers.palettehelper&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
     <img alt='Get it on Google Play' 
-         src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/>
+         src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'
+         height="116" width="300"/>
 </a>
+
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Palette%20Helper-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1613)
 [![Bugsnag](https://img.shields.io/badge/crash_reporting_by-bugsnag-green.png)](https://bugsnag.com/platforms/android)
 
