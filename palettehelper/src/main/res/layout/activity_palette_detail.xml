@@ -1,89 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.sweers.palettehelper.ui.widget.ElasticDragDismissFrameLayout
+    android:id="@+id/draggable_frame"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/draggable_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:dragDismissDistance="@dimen/drag_dismiss_distance"
     app:dragDismissScale="0.95">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_height="wrap_content"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        >
+        android:layout_height="wrap_content"
+        android:overScrollMode="never">
 
-        <FrameLayout
-            android:id="@+id/image_view_container"
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxHeight="@dimen/max_image_height"
-            android:foreground="?attr/selectableItemBackground"
+            android:orientation="vertical"
             >
 
             <FrameLayout
+                android:id="@+id/image_view_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:foreground="?attr/selectableItemBackground"
                 android:maxHeight="@dimen/max_image_height"
-                android:adjustViewBounds="true"
-                android:foreground="#33000000"
                 >
 
-                <ImageView
-                    android:id="@+id/image_view_background"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@string/blurred_detail_image"
+                    android:adjustViewBounds="true"
+                    android:foreground="#33000000"
+                    android:maxHeight="@dimen/max_image_height"
+                    >
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/image_view_background"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/blurred_detail_image"
+                        android:scaleType="centerCrop"
+                        />
+
+                </FrameLayout>
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/cd_detail_image"
+                    android:maxHeight="@dimen/max_image_height"
+                    android:scaleType="fitCenter"
+                    android:transitionName="@string/transition_image"
                     />
 
             </FrameLayout>
 
-            <ImageView
-                android:id="@+id/image_view"
-                android:layout_width="match_parent"
+            <!-- We're 'faking' a toolbar here as we just want a back button.
+                 This approach lets the borderless ripple extend beyond the back button's bounds,
+                 toolbar clips it. Wrapping layout needed for the ripple. -->
+            <FrameLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxHeight="@dimen/max_image_height"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:contentDescription="@string/cd_detail_image"
-                android:transitionName="@string/transition_image"
+                android:background="@android:color/transparent"
+                android:elevation="9dp"
+                >
+
+                <!-- animate alpha in DribbleShot#enterAnimation
+                     margins push out parent for the borderless ripple -->
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/back"
+                    android:layout_width="?actionBarSize"
+                    android:layout_height="?actionBarSize"
+                    android:layout_marginBottom="@dimen/padding_normal"
+                    android:layout_marginEnd="@dimen/padding_normal"
+                    android:layout_marginRight="@dimen/padding_normal"
+                    android:src="@drawable/ic_arrow_back"
+                    />
+
+            </FrameLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/grid_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/image_view_container"
+                android:overScrollMode="never"
                 />
 
-        </FrameLayout>
-
-        <!-- We're 'faking' a toolbar here as we just want a back button.
-             This approach lets the borderless ripple extend beyond the back button's bounds,
-             toolbar clips it. Wrapping layout needed for the ripple. -->
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:elevation="9dp">
-
-            <!-- animate alpha in DribbleShot#enterAnimation
-                 margins push out parent for the borderless ripple -->
-            <ImageButton
-                android:id="@+id/back"
-                android:layout_width="?actionBarSize"
-                android:layout_height="?actionBarSize"
-                android:layout_marginEnd="@dimen/padding_normal"
-                android:layout_marginRight="@dimen/padding_normal"
-                android:layout_marginBottom="@dimen/padding_normal"
-                android:src="@drawable/ic_arrow_back"
-                />
-
-        </FrameLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/grid_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:overScrollMode="never"
-            android:layout_below="@id/image_view_container"
-            />
-
-    </RelativeLayout>
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
 </io.sweers.palettehelper.ui.widget.ElasticDragDismissFrameLayout>
 

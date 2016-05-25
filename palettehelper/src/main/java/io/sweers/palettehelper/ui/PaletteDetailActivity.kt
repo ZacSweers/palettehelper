@@ -299,6 +299,7 @@ class PaletteDetailActivity : AppCompatActivity() {
 
                     Timber.d("Setting up adapter with swatches")
                     recyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+                    recyclerView.isNestedScrollingEnabled = false
                     val adapter = ResultsAdapter(swatches)
                     recyclerView.adapter = adapter
                 }
